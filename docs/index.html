@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ChalaVoice — Documentación / Documentation</title>
+  <style>
+    :root {
+      --bg: #0F172A;
+      --surface: #1E293B;
+      --primary: #10B981;
+      --accent: #06B6D4;
+      --text: #F1F5F9;
+      --muted: #94A3B8;
+    }
+    body {
+      margin: 0;
+      padding: 32px 18px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 820px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: 14px;
+      padding: 26px 30px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+    h1 { margin: 0; color: var(--primary); font-size: 24px; }
+    h2 { color: var(--accent); margin-top: 22px; }
+    code {
+      background: var(--bg);
+      color: var(--primary);
+      padding: 2px 6px;
+      border-radius: 5px;
+    }
+    a { color: var(--accent); }
+    .lang-switch button {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid rgba(6, 182, 212, 0.45);
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .lang-switch button.active {
+      background: var(--primary);
+      color: #06281E;
+      border-color: var(--primary);
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>ChalaVoice v1.0.0</h1>
+        <small style="color: var(--muted);">Suite Chala · Manifest V3 · 100% Local &amp; Offline</small>
+      </div>
+      <div class="lang-switch">
+        <button id="btnEs" class="active" type="button">Español</button>
+        <button id="btnEn" type="button">English</button>
+      </div>
+    </header>
+
+    <section id="docEs">
+      <p><strong>ChalaVoice</strong> es una extensión de navegador Manifest V3 de código abierto para lectura en voz alta 100% local, sin servidores externos, sin telemetría y con cero dependencias externas.</p>
+      <h2>Capacidades principales</h2>
+      <ul>
+        <li><strong>Motor Anti-Congelamiento de 3 capas:</strong> subdivisión inteligente de párrafos y oraciones (&le;200 caracteres), pausas naturales diferenciadas y Watchdog automático ante bloqueos de síntesis en Chromium.</li>
+        <li><strong>Perfiles acústicos y ranking de voces:</strong> detección local de idioma y clasificación priorizada de voces <code>Natural</code>, <code>Neural</code>, <code>Online</code>, <code>Google</code> y <code>Apple</code>, más 4 presets (<em>Narrador Rústico</em>, <em>Voz Suave</em>, <em>Modo Estudio</em>, <em>Natural</em>) y Sleep Timer con atenuación gradual.</li>
+        <li><strong>Modo Página Web:</strong> extracción heurística local (<code>readability.js</code>) con resaltado en vivo del párrafo y oración activa y clic para saltar.</li>
+        <li><strong>Modo Libros y Textos:</strong> lector local de <code>.epub</code> (PKZIP + <code>DecompressionStream('deflate-raw')</code>), <code>.md</code>, <code>.txt</code> y texto pegado, guardando progreso exacto en <code>chrome.storage.local</code>.</li>
+      </ul>
+      <h2>Comandos de desarrollo</h2>
+      <p>Requisitos: <code>Node.js &gt;= 22</code>. Ejecuta <code>npm run icons</code>, <code>npm run build</code> y <code>npm test</code>.</p>
+      <p>Repositorio oficial: <a href="https://github.com/joelchala/ChalaVoice">github.com/joelchala/ChalaVoice</a> · Sitio: <a href="https://chaladev.site">chaladev.site</a></p>
+    </section>
+
+    <section id="docEn" class="hidden">
+      <p><strong>ChalaVoice</strong> is an open-source Manifest V3 browser extension for 100% local text-to-speech reading with zero external servers, zero telemetry, and zero external dependencies.</p>
+      <h2>Core Capabilities</h2>
+      <ul>
+        <li><strong>3-Layer Anti-Freeze Engine:</strong> smart paragraph/sentence chunking (&le;200 chars), differentiated sentence/paragraph pauses, active utterance GC retention, and automatic Watchdog recovery.</li>
+        <li><strong>Voice Ranking &amp; Acoustic Presets:</strong> local language detection and voice ranking prioritizing <code>Natural</code>, <code>Neural</code>, <code>Online</code>, <code>Google</code>, and <code>Apple</code> voices, 4 one-click presets, and a fade-out Sleep Timer.</li>
+        <li><strong>Web Page Mode:</strong> local heuristic extraction (<code>readability.js</code>) with live paragraph/sentence highlighting and click-to-jump navigation.</li>
+        <li><strong>Books &amp; Texts Mode:</strong> offline parser for <code>.epub</code> (native PKZIP + <code>DecompressionStream('deflate-raw')</code>), <code>.md</code>, <code>.txt</code>, and pasted text with saved reading progress in <code>chrome.storage.local</code>.</li>
+      </ul>
+      <h2>Development Commands</h2>
+      <p>Requirements: <code>Node.js &gt;= 22</code>. Run <code>npm run icons</code>, <code>npm run build</code>, and <code>npm test</code>.</p>
+      <p>Official Repository: <a href="https://github.com/joelchala/ChalaVoice">github.com/joelchala/ChalaVoice</a> · Website: <a href="https://chaladev.site">chaladev.site</a></p>
+    </section>
+  </main>
+  <script>
+    const btnEs = document.getElementById("btnEs");
+    const btnEn = document.getElementById("btnEn");
+    const docEs = document.getElementById("docEs");
+    const docEn = document.getElementById("docEn");
+    btnEs.addEventListener("click", () => {
+      btnEs.classList.add("active");
+      btnEn.classList.remove("active");
+      docEs.classList.remove("hidden");
+      docEn.classList.add("hidden");
+    });
+    btnEn.addEventListener("click", () => {
+      btnEn.classList.add("active");
+      btnEs.classList.remove("active");
+      docEn.classList.remove("hidden");
+      docEs.classList.add("hidden");
+    });
+  </script>
+</body>
+</html>

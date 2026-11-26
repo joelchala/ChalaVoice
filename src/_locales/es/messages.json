@@ -1,0 +1,166 @@
+{
+  "extName": {
+    "message": "ChalaVoice — Lector en Voz Alta Local",
+    "description": "Nombre de la extensión"
+  },
+  "extDescription": {
+    "message": "Lector en voz alta 100% local con perfiles de voz, libros EPUB/MD/TXT, resaltado en vivo y temporizador. Cero rastreadores.",
+    "description": "Descripción corta para tiendas (<= 132 caracteres)"
+  },
+  "actionTitle": {
+    "message": "Abrir ChalaVoice (Panel Lateral)",
+    "description": "Título del botón de la barra de herramientas"
+  },
+  "appTagline": {
+    "message": "100% local · Sin telemetría",
+    "description": "Subtítulo del encabezado"
+  },
+  "tabWeb": {
+    "message": "Página Web",
+    "description": "Pestaña de lectura de página web"
+  },
+  "tabBooks": {
+    "message": "Libros y Textos",
+    "description": "Pestaña de libros y textos locales"
+  },
+  "btnReadCurrentPage": {
+    "message": "Leer página actual",
+    "description": "Botón para extraer y leer la pestaña activa"
+  },
+  "btnRefreshTab": {
+    "message": "Actualizar pestaña",
+    "description": "Botón para consultar el estado de la pestaña"
+  },
+  "restrictedUrlNotice": {
+    "message": "Esta pestaña es una página interna o protegida del navegador. Abre un artículo web o usa la pestaña Libros y Textos.",
+    "description": "Aviso en URLs restringidas"
+  },
+  "emptyWebPrompt": {
+    "message": "Pulsa «Leer página actual» para extraer el artículo limpio y escucharlo con resaltado en vivo.",
+    "description": "Texto inicial en pestaña Página Web"
+  },
+  "dropZoneTitle": {
+    "message": "Arrastra un archivo .epub, .md o .txt",
+    "description": "Título de zona drag and drop"
+  },
+  "dropZoneSubtitle": {
+    "message": "O haz clic para seleccionarlo desde tu equipo (100% offline)",
+    "description": "Subtítulo de zona drag and drop"
+  },
+  "btnPasteText": {
+    "message": "Pegar texto directo",
+    "description": "Botón para abrir área de texto pegado"
+  },
+  "pastePlaceholder": {
+    "message": "Pega aquí cualquier texto, apunte o artículo para escucharlo al instante...",
+    "description": "Placeholder del textarea de texto directo"
+  },
+  "pasteTitlePlaceholder": {
+    "message": "Título opcional (ej. Notas de arquitectura)",
+    "description": "Placeholder de título para texto pegado"
+  },
+  "btnLoadPasted": {
+    "message": "Cargar texto",
+    "description": "Botón para procesar texto pegado"
+  },
+  "libraryHeading": {
+    "message": "Biblioteca Local",
+    "description": "Título de la lista de libros guardados"
+  },
+  "libraryEmpty": {
+    "message": "Aún no hay documentos guardados. Carga un EPUB, Markdown, TXT o pega texto.",
+    "description": "Estado vacío de la biblioteca"
+  },
+  "chapterLabel": {
+    "message": "Capítulo",
+    "description": "Etiqueta del selector de capítulo"
+  },
+  "voiceStudioTitle": {
+    "message": "Estudio de Voz y Presets",
+    "description": "Título de controles de voz"
+  },
+  "presetRustic": {
+    "message": "Narrador Rústico",
+    "description": "Preset de voz grave y pausada"
+  },
+  "presetSoft": {
+    "message": "Voz Suave",
+    "description": "Preset de voz suave / nocturna"
+  },
+  "presetStudy": {
+    "message": "Modo Estudio",
+    "description": "Preset de voz rápida para repaso"
+  },
+  "presetNatural": {
+    "message": "Natural",
+    "description": "Preset estándar"
+  },
+  "labelVoice": {
+    "message": "Voz del sistema",
+    "description": "Etiqueta selector de voz"
+  },
+  "labelRate": {
+    "message": "Velocidad",
+    "description": "Etiqueta slider de velocidad"
+  },
+  "labelPitch": {
+    "message": "Tono",
+    "description": "Etiqueta slider de tono"
+  },
+  "labelVolume": {
+    "message": "Volumen",
+    "description": "Etiqueta slider de volumen"
+  },
+  "labelSleepTimer": {
+    "message": "Temporizador",
+    "description": "Etiqueta de temporizador de apagado"
+  },
+  "sleepOff": {
+    "message": "Apagado",
+    "description": "Opción sin temporizador"
+  },
+  "btnPlay": {
+    "message": "Reproducir",
+    "description": "Botón reproducir"
+  },
+  "btnPause": {
+    "message": "Pausar",
+    "description": "Botón pausar"
+  },
+  "btnStop": {
+    "message": "Detener",
+    "description": "Botón detener"
+  },
+  "btnPrevParagraph": {
+    "message": "Párrafo anterior",
+    "description": "Botón retroceder párrafo"
+  },
+  "btnNextParagraph": {
+    "message": "Párrafo siguiente",
+    "description": "Botón avanzar párrafo"
+  },
+  "statusReady": {
+    "message": "Listo",
+    "description": "Estado listo"
+  },
+  "statusReading": {
+    "message": "Leyendo en voz alta",
+    "description": "Estado reproduciendo"
+  },
+  "statusPaused": {
+    "message": "En pausa",
+    "description": "Estado pausado"
+  },
+  "statusNoVoices": {
+    "message": "No se detectaron voces de síntesis en el sistema.",
+    "description": "Aviso cuando no hay voces"
+  },
+  "footerSuite": {
+    "message": "Suite Chala",
+    "description": "Enlace a Suite Chala"
+  },
+  "footerDonate": {
+    "message": "Apoyar en PayPal",
+    "description": "Enlace de donación opcional"
+  }
+}

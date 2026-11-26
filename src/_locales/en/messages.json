@@ -1,0 +1,166 @@
+{
+  "extName": {
+    "message": "ChalaVoice — Local Text-to-Speech Reader",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "100% local text-to-speech reader with voice profiles, EPUB/MD/TXT book mode, live highlighting & sleep timer. Zero tracking.",
+    "description": "Short store description (<= 132 chars)"
+  },
+  "actionTitle": {
+    "message": "Open ChalaVoice (Side Panel)",
+    "description": "Toolbar button title"
+  },
+  "appTagline": {
+    "message": "100% local · Zero telemetry",
+    "description": "Header subtitle"
+  },
+  "tabWeb": {
+    "message": "Web Page",
+    "description": "Web page reader tab"
+  },
+  "tabBooks": {
+    "message": "Books & Texts",
+    "description": "Local books and texts tab"
+  },
+  "btnReadCurrentPage": {
+    "message": "Read current page",
+    "description": "Button to extract and read active tab"
+  },
+  "btnRefreshTab": {
+    "message": "Refresh tab",
+    "description": "Button to refresh active tab state"
+  },
+  "restrictedUrlNotice": {
+    "message": "This tab is an internal or protected browser page. Open a web article or switch to Books & Texts.",
+    "description": "Notice on restricted URLs"
+  },
+  "emptyWebPrompt": {
+    "message": "Click \"Read current page\" to extract the clean article and listen with live highlighting.",
+    "description": "Empty state prompt for Web Page tab"
+  },
+  "dropZoneTitle": {
+    "message": "Drop an .epub, .md, or .txt file",
+    "description": "Drag and drop zone title"
+  },
+  "dropZoneSubtitle": {
+    "message": "Or click to select a local file from your device (100% offline)",
+    "description": "Drag and drop zone subtitle"
+  },
+  "btnPasteText": {
+    "message": "Paste plain text",
+    "description": "Button to open pasted text area"
+  },
+  "pastePlaceholder": {
+    "message": "Paste any text, notes, or article here to listen immediately...",
+    "description": "Textarea placeholder for pasted text"
+  },
+  "pasteTitlePlaceholder": {
+    "message": "Optional title (e.g. Architecture Notes)",
+    "description": "Title input placeholder for pasted text"
+  },
+  "btnLoadPasted": {
+    "message": "Load text",
+    "description": "Button to load pasted text"
+  },
+  "libraryHeading": {
+    "message": "Local Library",
+    "description": "Heading for saved books list"
+  },
+  "libraryEmpty": {
+    "message": "No saved documents yet. Load an EPUB, Markdown, TXT file, or paste text.",
+    "description": "Empty state for local library"
+  },
+  "chapterLabel": {
+    "message": "Chapter",
+    "description": "Chapter selector label"
+  },
+  "voiceStudioTitle": {
+    "message": "Voice Studio & Presets",
+    "description": "Voice controls heading"
+  },
+  "presetRustic": {
+    "message": "Deep Narrator",
+    "description": "Low-pitch calm narrator preset"
+  },
+  "presetSoft": {
+    "message": "Soft / Night",
+    "description": "Soft night voice preset"
+  },
+  "presetStudy": {
+    "message": "Study Mode",
+    "description": "Fast review preset"
+  },
+  "presetNatural": {
+    "message": "Natural",
+    "description": "Standard natural preset"
+  },
+  "labelVoice": {
+    "message": "System voice",
+    "description": "Voice selector label"
+  },
+  "labelRate": {
+    "message": "Speed",
+    "description": "Speed slider label"
+  },
+  "labelPitch": {
+    "message": "Pitch",
+    "description": "Pitch slider label"
+  },
+  "labelVolume": {
+    "message": "Volume",
+    "description": "Volume slider label"
+  },
+  "labelSleepTimer": {
+    "message": "Sleep Timer",
+    "description": "Sleep timer label"
+  },
+  "sleepOff": {
+    "message": "Off",
+    "description": "Sleep timer off option"
+  },
+  "btnPlay": {
+    "message": "Play",
+    "description": "Play button"
+  },
+  "btnPause": {
+    "message": "Pause",
+    "description": "Pause button"
+  },
+  "btnStop": {
+    "message": "Stop",
+    "description": "Stop button"
+  },
+  "btnPrevParagraph": {
+    "message": "Previous paragraph",
+    "description": "Previous paragraph button"
+  },
+  "btnNextParagraph": {
+    "message": "Next paragraph",
+    "description": "Next paragraph button"
+  },
+  "statusReady": {
+    "message": "Ready",
+    "description": "Ready status"
+  },
+  "statusReading": {
+    "message": "Reading aloud",
+    "description": "Reading status"
+  },
+  "statusPaused": {
+    "message": "Paused",
+    "description": "Paused status"
+  },
+  "statusNoVoices": {
+    "message": "No speech synthesis voices detected on this system.",
+    "description": "Warning when no voices are available"
+  },
+  "footerSuite": {
+    "message": "Suite Chala",
+    "description": "Suite Chala link"
+  },
+  "footerDonate": {
+    "message": "Support on PayPal",
+    "description": "Optional donation link"
+  }
+}

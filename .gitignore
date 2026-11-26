@@ -1,0 +1,27 @@
+# Build & generated packages
+/dist/build/
+/store/paquetes/
+
+# Dependencies & OS/editor files
+node_modules/
+__pycache__/
+*.bak
+.DS_Store
+Thumbs.db
+*.log
+*.tmp.*
+
+# Secrets & credentials
+.env
+.env.*
+*.pem
+*.key
+credentials*.json
+
+# Local AI assistant instructions
+AGENTS.md
+agents.md
+AGENT.md
+agent.md
+CLAUDE.md
+claude.md

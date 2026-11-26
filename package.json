@@ -1,0 +1,25 @@
+{
+  "name": "chalavoice",
+  "version": "1.0.0",
+  "description": "Lector en voz alta 100% local con perfiles de voz, modo libro (EPUB/MD/TXT) y resaltado en vivo (Manifest V3) - Suite Chala",
+  "type": "module",
+  "scripts": {
+    "icons": "node tools/generate-icons.mjs",
+    "build": "node tools/make-mv3.mjs",
+    "test": "node tests/verify.mjs",
+    "clean": "node -e \"import('node:fs').then(fs => { fs.rmSync('dist/build', { recursive: true, force: true }); fs.rmSync('store/paquetes', { recursive: true, force: true }); })\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joelchala/ChalaVoice.git"
+  },
+  "author": "Joel Rafael Chala García",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/joelchala/ChalaVoice/issues"
+  },
+  "homepage": "https://github.com/joelchala/ChalaVoice#readme",
+  "engines": {
+    "node": ">=22"
+  }
+}
