@@ -533,18 +533,26 @@ function main() {
     console.log(`Generated ${path.relative(ROOT, outPath)}`);
   }
 
+  const forceStore = process.argv.includes("--force-store");
+  const logoPath = path.join(STORE_DIR, "logo-300x300.png");
+  fs.writeFileSync(logoPath, renderLogoPng(300, { solidBg: true, cropMargin: 0 }));
+  console.log(`Generated ${path.relative(ROOT, logoPath)}`);
+
   const storeAssets = [
-    ["logo-300x300.png", renderLogoPng(300, { solidBg: true, cropMargin: 0 })],
-    ["promo-440x280.png", renderStoreBanner(440, 280, "web")],
-    ["destacada-1400x560.png", renderStoreBanner(1400, 560, "presets")],
-    ["captura-1-lector-web.png", renderStoreBanner(1280, 800, "web")],
-    ["captura-2-perfiles-voz.png", renderStoreBanner(1280, 800, "presets")],
-    ["captura-3-biblioteca-epub.png", renderStoreBanner(1280, 800, "books")]
+    ["promo-440x280.png", () => renderStoreBanner(440, 280, "web")],
+    ["destacada-1400x560.png", () => renderStoreBanner(1400, 560, "presets")],
+    ["captura-1-lector-web.png", () => renderStoreBanner(1280, 800, "web")],
+    ["captura-2-perfiles-voz.png", () => renderStoreBanner(1280, 800, "presets")],
+    ["captura-3-biblioteca-epub.png", () => renderStoreBanner(1280, 800, "books")]
   ];
 
-  for (const [name, buf] of storeAssets) {
+  for (const [name, renderFn] of storeAssets) {
     const outPath = path.join(STORE_DIR, name);
-    fs.writeFileSync(outPath, buf);
+    if (!forceStore && fs.existsSync(outPath)) {
+      console.log(`Kept existing ${path.relative(ROOT, outPath)}`);
+      continue;
+    }
+    fs.writeFileSync(outPath, renderFn());
     console.log(`Generated ${path.relative(ROOT, outPath)}`);
   }
 }
