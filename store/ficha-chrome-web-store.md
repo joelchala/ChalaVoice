@@ -4,17 +4,16 @@ Material listo para **Chrome Web Store Developer Dashboard**.
 
 ## 1. Paquete
 
-- **Archivo:** `store/paquetes/ChalaVoice_1.0.0.chromium.zip`
+- **Archivo:** `store/paquetes/ChalaVoice_1.1.0.chromium.zip`
 
 ## 2. Propósito Único (Single Purpose)
 
-> ChalaVoice reads web articles and local books (.epub, .md, .txt) aloud completely offline using native browser speech synthesis, live paragraph highlighting, voice profiles, and a sleep timer.
+> ChalaVoice reads web articles and local books (.epub, .md, .txt) aloud completely offline using native browser speech synthesis, a compact Popup, a draggable Shadow DOM Floating Mini-Bar, visual Inspector start-point selection, voice profiles, and a sleep timer.
 
 ## 3. Justificación de permisos
 
-- **`sidePanel`**: Muestra el reproductor, perfiles de voz y biblioteca local en el Panel Lateral nativo de Chrome manteniendo visible la página para el resaltado en vivo.
-- **`activeTab`**: Acceso temporal a la pestaña activa únicamente cuando el usuario abre ChalaVoice o pulsa «Leer página actual».
-- **`scripting`**: Inyección bajo demanda de `lib/readability.js` y `content/highlighter.js` para extraer el texto limpio y resaltar la lectura en vivo.
+- **`activeTab`**: Acceso temporal a la pestaña activa únicamente cuando el usuario pulsa «Leer página actual» o «Seleccionar párrafo inicial».
+- **`scripting`**: Inyección bajo demanda de `lib/readability.js`, `lib/voice-ranker.js`, `lib/speech-queue.js` y `content/highlighter.js` para extraer texto limpio, ejecutar lectura persistente, mostrar la Mini Barra Flotante y activar el Modo Inspector.
 - **`storage`**: Almacenamiento local de preferencias de voz, biblioteca offline y progreso de lectura en `chrome.storage.local`.
 
 ## 4. Declaración de privacidad y código remoto

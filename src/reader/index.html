@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ChalaVoice — Lector de Libros y Textos</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="reader-shell">
+    <header class="reader-header">
+      <div class="brand">
+        <img src="../icons/icon48.png" alt="ChalaVoice" width="30" height="30" />
+        <div>
+          <h1>ChalaVoice · Lector Local</h1>
+          <span class="tagline" data-i18n="appTagline">100% local · Sin telemetría</span>
+        </div>
+      </div>
+      <span id="statusBadge" class="status-pill" data-state="idle" data-i18n="statusReady">Listo</span>
+    </header>
+
+    <div class="reader-layout">
+      <aside class="sidebar">
+        <div id="dropZone" class="drop-zone" tabindex="0" role="button">
+          <input id="fileInput" type="file" accept=".epub,.md,.markdown,.txt,text/plain,text/markdown,application/epub+zip" hidden />
+          <div class="drop-title" data-i18n="dropZoneTitle">Arrastra un archivo .epub, .md o .txt</div>
+          <div class="drop-sub" data-i18n="dropZoneSubtitle">O haz clic para seleccionarlo desde tu equipo</div>
+        </div>
+
+        <button id="btnTogglePaste" class="btn-secondary" data-i18n="btnPasteText">Pegar texto directo</button>
+        <div id="pastePanel" class="paste-panel hidden">
+          <input id="pasteTitleInput" type="text" class="text-input" data-i18n-placeholder="pasteTitlePlaceholder" placeholder="Título opcional" />
+          <textarea id="pasteTextArea" rows="5" class="text-area" data-i18n-placeholder="pastePlaceholder" placeholder="Pega aquí cualquier texto..."></textarea>
+          <button id="btnLoadPasted" class="btn-primary" data-i18n="btnLoadPasted">Cargar texto</button>
+        </div>
+
+        <div class="library-box">
+          <div class="library-head">
+            <h2 data-i18n="libraryHeading">Biblioteca Local</h2>
+            <span id="libraryCount" class="count-badge">0</span>
+          </div>
+          <div id="libraryList" class="library-list"></div>
+        </div>
+      </aside>
+
+      <main class="content-pane">
+        <div id="emptyReader" class="empty-reader">
+          <h2>Selecciona o carga un libro (.epub, .md, .txt)</h2>
+          <p>Todo el procesamiento y la síntesis ocurren 100 % en tu navegador, guardando tu capítulo y párrafo exactos en almacenamiento local.</p>
+        </div>
+
+        <article id="bookViewer" class="book-viewer hidden">
+          <div class="book-header">
+            <div>
+              <span id="bookFormatBadge" class="format-badge">EPUB</span>
+              <h2 id="bookTitle"></h2>
+              <div id="bookStats" class="meta-chips"></div>
+            </div>
+            <div id="chapterSelectRow" class="chapter-box hidden">
+              <label for="chapterSelect" data-i18n="chapterLabel">Capítulo</label>
+              <select id="chapterSelect" class="select-input"></select>
+            </div>
+          </div>
+
+          <div id="bookParagraphList" class="paragraph-list"></div>
+        </article>
+      </main>
+    </div>
+
+    <footer class="player-dock">
+      <div class="dock-left">
+        <div id="liveCaption" class="live-caption">Listo para leer.</div>
+        <div class="progress-row">
+          <input id="progressScrubber" type="range" min="0" max="100" value="0" aria-label="Progreso" />
+          <span id="progressCounter">0 / 0</span>
+          <span id="sleepCountdown" class="sleep-badge hidden"></span>
+        </div>
+      </div>
+
+      <div class="dock-center">
+        <button id="btnPrevPara" class="btn-transport" title="Párrafo anterior">⏮</button>
+        <button id="btnPlayPause" class="btn-play" title="Reproducir / Pausar">▶</button>
+        <button id="btnStop" class="btn-transport" title="Detener">⏹</button>
+        <button id="btnNextPara" class="btn-transport" title="Párrafo siguiente">⏭</button>
+      </div>
+
+      <div class="dock-right">
+        <div class="preset-strip">
+          <button class="preset-btn" data-preset="rustic" data-i18n="presetRustic">Narrador Rústico</button>
+          <button class="preset-btn" data-preset="soft" data-i18n="presetSoft">Voz Suave</button>
+          <button class="preset-btn" data-preset="study" data-i18n="presetStudy">Modo Estudio</button>
+          <button class="preset-btn active" data-preset="natural" data-i18n="presetNatural">Natural</button>
+        </div>
+        <div class="controls-strip">
+          <select id="voiceSelect" class="select-input compact" aria-label="Voz"></select>
+          <label class="mini-slider">Vel <input id="rateRange" type="range" min="0.6" max="2.0" step="0.02" value="1.0" /><span id="rateValue">1.00x</span></label>
+          <label class="mini-slider">Tono <input id="pitchRange" type="range" min="0.6" max="1.4" step="0.02" value="1.0" /><span id="pitchValue">1.00</span></label>
+          <label class="mini-slider">Vol <input id="volumeRange" type="range" min="0" max="1" step="0.05" value="1.0" /><span id="volumeValue">100%</span></label>
+          <select id="sleepSelect" class="select-input compact" aria-label="Temporizador">
+            <option value="0">Timer: Off</option>
+            <option value="15">15 min</option>
+            <option value="30">30 min</option>
+            <option value="45">45 min</option>
+            <option value="60">60 min</option>
+          </select>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../lib/voice-ranker.js"></script>
+  <script src="../lib/speech-queue.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

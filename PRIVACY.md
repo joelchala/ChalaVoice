@@ -1,6 +1,6 @@
-# Política de Privacidad de ChalaVoice
+# Política de Privacidad de ChalaVoice (v1.1.0)
 
-*Última actualización: 25 de noviembre de 2026* · [English version below](#chalavoice-privacy-policy)
+*Última actualización: 25 de noviembre de 2026* · [English version below](#chalavoice-privacy-policy-v110)
 
 ChalaVoice es una extensión de navegador de código abierto (Manifest V3) diseñada para leer artículos web y documentos locales en voz alta de forma 100% offline. Publicada por Joel Rafael Chala García / Coposys SRL bajo licencia MIT.
 
@@ -11,20 +11,19 @@ ChalaVoice es una extensión de navegador de código abierto (Manifest V3) dise�
 ## Qué datos se procesan y dónde
 
 - **Preferencias de voz y reproducción** (perfil acústico, velocidad, tono, volumen y voz seleccionada): se guardan exclusivamente de forma local mediante `chrome.storage.local`.
-- **Biblioteca local de libros y textos** (`.epub`, `.md`, `.txt` y textos pegados, junto con su capítulo, párrafo y posición de lectura): se procesan localmente en tu navegador usando Web APIs nativas (`DecompressionStream`, `DOMParser` y `speechSynthesis`) y se guardan solo en tu dispositivo mediante `chrome.storage.local`.
-- **Artículos web leídos:** cuando pulsas *"Leer página actual"*, el contenido legible se extrae localmente en la pestaña activa y nunca sale de tu equipo.
+- **Biblioteca local de libros y textos** (`.epub`, `.md`, `.txt` y textos pegados, junto con su capítulo, párrafo y posición de lectura): se procesan localmente en tu navegador usando Web APIs nativas (`DecompressionStream`, `DOMParser` y `speechSynthesis`) en `reader/index.html` y se guardan solo en tu dispositivo mediante `chrome.storage.local`.
+- **Artículos web leídos y Modo Inspector:** cuando pulsas *"Leer página actual"* o *"Seleccionar párrafo inicial"*, el contenido legible se extrae y sintetiza localmente en la pestaña activa y nunca sale de tu equipo.
 
 ## Conexiones de red
 
-En uso normal, ChalaVoice **no realiza ninguna petición de red**. Las únicas conexiones externas ocurren si haces clic voluntariamente en los enlaces del pie del panel (Suite Chala, repositorio en GitHub o donación opcional en PayPal), donde aplican las políticas de privacidad de dichos sitios.
+En uso normal, ChalaVoice **no realiza ninguna petición de red**. Las únicas conexiones externas ocurren si haces clic voluntariamente en los enlaces del pie del Popup (Suite Chala, repositorio en GitHub o donación opcional en PayPal), donde aplican las políticas de privacidad de dichos sitios.
 
 ## Permisos que solicita la extensión
 
 | Permiso | Propósito estricto |
 |---|---|
-| `sidePanel` | Mostrar la interfaz del reproductor y biblioteca en el panel lateral nativo del navegador (`sidebarAction` en Firefox) |
-| `activeTab` | Acceder temporalmente al contenido de la pestaña activa únicamente cuando pulsas el icono o *"Leer página actual"* |
-| `scripting` | Inyectar bajo demanda el extractor local (`lib/readability.js`) y el resaltador en vivo (`content/highlighter.js`) |
+| `activeTab` | Acceder temporalmente al contenido de la pestaña activa únicamente cuando pulsas *"Leer página actual"* o *"Seleccionar párrafo inicial"* |
+| `scripting` | Inyectar bajo demanda el extractor local (`lib/readability.js`), el motor de voz (`lib/voice-ranker.js`, `lib/speech-queue.js`) y el resaltador / Mini Barra Flotante (`content/highlighter.js`) |
 | `storage` | Guardar tus perfiles de voz, biblioteca local y progreso exacto de lectura en `chrome.storage.local` |
 
 ChalaVoice **no** solicita `<all_urls>`, `host_permissions`, `tabs` ni ejecución de código remoto.
@@ -37,7 +36,7 @@ ChalaVoice **no** solicita `<all_urls>`, `host_permissions`, `tabs` ni ejecució
 
 ---
 
-# ChalaVoice Privacy Policy
+# ChalaVoice Privacy Policy (v1.1.0)
 
 *Last updated: November 25, 2026*
 
@@ -50,20 +49,19 @@ ChalaVoice is an open-source Manifest V3 browser extension for 100% offline text
 ## What data is handled and where
 
 - **Voice & playback preferences** (preset, rate, pitch, volume, and selected voice): stored solely on your device in `chrome.storage.local`.
-- **Local books & texts library** (`.epub`, `.md`, `.txt`, and pasted texts along with exact chapter, paragraph, and chunk progress): parsed completely offline using native browser APIs (`DecompressionStream`, `DOMParser`, and `speechSynthesis`) and stored only in `chrome.storage.local`.
-- **Web articles:** extracted locally in the active tab only upon your explicit action without sending URLs or page content anywhere.
+- **Local books & texts library** (`.epub`, `.md`, `.txt`, and pasted texts along with exact chapter, paragraph, and chunk progress): parsed completely offline using native browser APIs (`DecompressionStream`, `DOMParser`, and `speechSynthesis`) in `reader/index.html` and stored only in `chrome.storage.local`.
+- **Web articles & Inspector Mode:** extracted and spoken locally inside the active tab only upon your explicit action without sending URLs or page content anywhere.
 
 ## Network connections
 
-In normal operation, ChalaVoice **makes zero network requests**. External connections only occur if you explicitly click footer links (Suite Chala, GitHub, or optional PayPal donation).
+In normal operation, ChalaVoice **makes zero network requests**. External connections only occur if you explicitly click footer links inside the Popup (Suite Chala, GitHub, or optional PayPal donation).
 
 ## Permissions requested
 
 | Permission | Strict Purpose |
 |---|---|
-| `sidePanel` | Renders the player and local library inside the browser's native Side Panel (`sidebarAction` on Firefox) |
-| `activeTab` | Grants temporary access to the active tab solely when you open the panel or click "Read current page" |
-| `scripting` | Injects the local readability extractor (`lib/readability.js`) and live highlighter (`content/highlighter.js`) on demand |
+| `activeTab` | Grants temporary access to the active tab solely when you click "Read current page" or "Select starting paragraph" |
+| `scripting` | Injects the local readability extractor (`lib/readability.js`), speech engine (`lib/voice-ranker.js`, `lib/speech-queue.js`), and live highlighter / Floating Mini-Bar (`content/highlighter.js`) on demand |
 | `storage` | Persists voice settings, local books, and exact reading progress in `chrome.storage.local` |
 
 ChalaVoice does **not** request `<all_urls>`, `host_permissions`, `tabs`, or remote code execution.

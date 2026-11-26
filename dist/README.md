@@ -18,4 +18,9 @@
 ## Mozilla Firefox (carga temporal)
 
 1. Abre `about:debugging#/runtime/this-firefox`.
-2. Haz clic en **Cargar complemento temporal…** y selecciona `store/paquetes/ChalaVoice_1.0.0.firefox.zip`.
+2. Haz clic en **Cargar complemento temporal…** y selecciona `store/paquetes/ChalaVoice_1.1.0.firefox.zip`.
+
+## Compatibilidad
+
+- **Chrome / Edge / Chromium:** versión `>= 109` (Manifest V3 con `action.default_popup`).
+- **Mozilla Firefox:** versión `>= 113.0`.

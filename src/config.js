@@ -1,14 +1,14 @@
 /**
  * Configuración centralizada de ChalaVoice (Suite Chala).
- * Define la paleta "Escudo Cibernético", presets acústicos de voz, URLs restringidas,
- * enlaces oficiales de la Suite Chala y donaciones opcionales por PayPal.
+ * Define la paleta de alto contraste (Negro, Gris, Naranja y Blanco),
+ * presets acústicos de voz, URLs restringidas, enlaces Suite Chala y PayPal.
  */
 
 export const PAYPAL_DONATE_URL = "https://www.paypal.com/ncp/payment/VSWPSS7D4ZRH2";
 
 export const CONFIG = {
   APP_NAME: "ChalaVoice",
-  VERSION: "1.0.0",
+  VERSION: "1.1.0",
   WEBSITE_URL: "https://chaladev.site",
   GITHUB_REPO_URL: "https://github.com/joelchala/ChalaVoice",
   PAYPAL_DONATE_URL,
@@ -23,12 +23,17 @@ export const CONFIG = {
     chalavoice: "https://github.com/joelchala/ChalaVoice"
   },
   COLORS: {
-    BG_DARK: "#0F172A",
-    SURFACE: "#1E293B",
-    PRIMARY: "#10B981",
-    ACCENT: "#06B6D4",
-    TEXT_MAIN: "#F1F5F9",
-    TEXT_MUTED: "#94A3B8"
+    BG_DARK: "#0B0B0E",
+    BG_ELEVATED: "#121216",
+    SURFACE: "#1C1C22",
+    SURFACE_ALT: "#2A2A32",
+    BORDER: "#3F3F46",
+    TEXT_MUTED: "#A1A1AA",
+    PRIMARY: "#F97316",
+    PRIMARY_HOVER: "#EA580C",
+    ACCENT: "#FB923C",
+    TEXT_WHITE: "#FFFFFF",
+    TEXT_MAIN: "#F4F4F5"
   },
   VOICE_PRESETS: {
     rustic: {
