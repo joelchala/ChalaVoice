@@ -8,7 +8,7 @@
     "description": "Short store description (<= 132 chars)"
   },
   "actionTitle": {
-    "message": "Open ChalaVoice (Side Panel)",
+    "message": "ChalaVoice — Read page or books",
     "description": "Toolbar button title"
   },
   "appTagline": {
@@ -27,16 +27,28 @@
     "message": "Read current page",
     "description": "Button to extract and read active tab"
   },
+  "btnPickStart": {
+    "message": "Select starting paragraph",
+    "description": "Button to activate visual Inspector Mode"
+  },
+  "inspectorTooltip": {
+    "message": "Click to read from here · Esc to cancel",
+    "description": "Floating tooltip label in Inspector Mode"
+  },
+  "btnOpenReader": {
+    "message": "Open Book Reader",
+    "description": "Button to open dedicated local book reader"
+  },
   "btnRefreshTab": {
     "message": "Refresh tab",
     "description": "Button to refresh active tab state"
   },
   "restrictedUrlNotice": {
-    "message": "This tab is an internal or protected browser page. Open a web article or switch to Books & Texts.",
+    "message": "Internal or protected browser page. Open a web article or switch to Books & Texts.",
     "description": "Notice on restricted URLs"
   },
   "emptyWebPrompt": {
-    "message": "Click \"Read current page\" to extract the clean article and listen with live highlighting.",
+    "message": "Click \"Read current page\" or use \"Select starting paragraph\" to point directly to any paragraph.",
     "description": "Empty state prompt for Web Page tab"
   },
   "dropZoneTitle": {

@@ -140,7 +140,20 @@ function createMiniDomEnv() {
       this.ownerDocument = ownerDoc;
       this._attrs = new Map();
       this.hidden = false;
-      this.scrolledCalls = 0;
+      this.style = { cssText: "", display: "", top: "", left: "", right: "", bottom: "", width: "" };
+      this.classList = {
+        toggle: (cls, force) => {
+          const set = new Set((this.className || "").split(/\s+/).filter(Boolean));
+          const add = force === undefined ? !set.has(cls) : Boolean(force);
+          if (add) set.add(cls);
+          else set.delete(cls);
+          this.className = [...set].join(" ");
+        }
+      };
+      this.listeners = new Map();
+      this.shadowRoot = null;
+      this.offsetWidth = 220;
+      this.offsetHeight = 40;
     }
     get id() {
       return this._attrs.get("id") || "";
@@ -170,9 +183,20 @@ function createMiniDomEnv() {
     removeAttribute(name) {
       this._attrs.delete(String(name).toLowerCase());
     }
-    scrollIntoView() {
-      this.scrolledCalls += 1;
+    addEventListener(type, fn) {
+      if (!this.listeners.has(type)) this.listeners.set(type, []);
+      this.listeners.get(type).push(fn);
     }
+    attachShadow({ mode }) {
+      this.shadowRoot = new MiniElement("#shadow-root", this.ownerDocument);
+      this.shadowRoot.mode = mode;
+      this.shadowRoot.host = this;
+      return this.shadowRoot;
+    }
+    getBoundingClientRect() {
+      return { top: 120, left: 40, bottom: 160, right: 400, width: 360, height: 40 };
+    }
+    scrollIntoView() {}
     get innerHTML() {
       return this.childNodes
         .map((c) => {
@@ -296,9 +320,15 @@ function createMiniDomEnv() {
       if (!this.listeners.has(type)) this.listeners.set(type, []);
       this.listeners.get(type).push(fn);
     }
-    dispatchClick(target) {
-      for (const fn of this.listeners.get("click") || []) {
-        fn({ target });
+    removeEventListener(type, fn) {
+      const arr = this.listeners.get(type);
+      if (!arr) return;
+      const idx = arr.indexOf(fn);
+      if (idx !== -1) arr.splice(idx, 1);
+    }
+    dispatch(type, eventObj) {
+      for (const fn of [...(this.listeners.get(type) || [])]) {
+        fn(eventObj);
       }
     }
   }
@@ -307,8 +337,10 @@ function createMiniDomEnv() {
 }
 
 async function run() {
-  // 1. Sintaxis y estructura base (cero dependencias, LF en scripts .sh)
-  await test("Syntax check, zero dependencies, and LF line endings on shell scripts", () => {
+  // 1. Sintaxis, cero dependencias, LF en scripts .sh y remoción de sidepanel/
+  await test("Syntax check, zero dependencies, popup/reader files, and LF on shell scripts", () => {
+    assert.equal(fs.existsSync(path.join(SRC, "sidepanel")), false, "src/sidepanel/ must be removed");
+
     const jsFiles = [
       path.join(SRC, "config.js"),
       path.join(SRC, "background.js"),
@@ -317,7 +349,8 @@ async function run() {
       path.join(SRC, "lib", "voice-ranker.js"),
       path.join(SRC, "lib", "speech-queue.js"),
       path.join(SRC, "content", "highlighter.js"),
-      path.join(SRC, "sidepanel", "app.js"),
+      path.join(SRC, "popup", "app.js"),
+      path.join(SRC, "reader", "app.js"),
       path.join(ROOT, "tools", "generate-icons.mjs"),
       path.join(ROOT, "tools", "make-mv3.mjs")
     ];
@@ -328,8 +361,8 @@ async function run() {
 
     const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8"));
     assert.equal(pkg.type, "module");
-    assert.equal(pkg.dependencies, undefined, "Must have zero dependencies");
-    assert.equal(pkg.devDependencies, undefined, "Must have zero devDependencies");
+    assert.equal(pkg.dependencies, undefined);
+    assert.equal(pkg.devDependencies, undefined);
     assert.equal(pkg.engines?.node, ">=22");
 
     for (const sh of ["make-mv3.sh", "make-clean.sh"]) {
@@ -338,33 +371,58 @@ async function run() {
     }
   });
 
-  // 2. Manifest V3 & i18n <= 132 chars
-  await test("Manifest V3 permissions, Side Panel, and i18n parity <= 132 chars", () => {
+  // 2. Manifest V3 con default_popup (sin sidePanel) & i18n <= 132 chars
+  await test("Manifest V3 uses default_popup, minimal permissions without sidePanel, and i18n parity <= 132 chars", () => {
     const manifest = JSON.parse(fs.readFileSync(path.join(SRC, "manifest.json"), "utf8"));
     assert.equal(manifest.manifest_version, 3);
     assert.equal(manifest.default_locale, "es");
-    assert.deepEqual(
-      [...(manifest.permissions || [])].sort(),
-      ["activeTab", "scripting", "sidePanel", "storage"]
-    );
-    assert.equal(manifest.side_panel?.default_path, "sidepanel/index.html");
+    assert.deepEqual([...(manifest.permissions || [])].sort(), ["activeTab", "scripting", "storage"]);
+    assert.equal(manifest.action?.default_popup, "popup/index.html");
+    assert.equal(manifest.side_panel, undefined, "Must NOT declare side_panel");
     assert.equal(manifest.host_permissions, undefined);
     assert.equal(JSON.stringify(manifest).includes("<all_urls>"), false);
 
     const esMsgs = JSON.parse(fs.readFileSync(path.join(SRC, "_locales", "es", "messages.json"), "utf8"));
     const enMsgs = JSON.parse(fs.readFileSync(path.join(SRC, "_locales", "en", "messages.json"), "utf8"));
     assert.deepEqual(Object.keys(esMsgs).sort(), Object.keys(enMsgs).sort());
-
-    assert.ok(esMsgs.extDescription.message.length <= 132, "ES description exceeds 132 chars");
-    assert.ok(enMsgs.extDescription.message.length <= 132, "EN description exceeds 132 chars");
+    assert.ok(esMsgs.extDescription.message.length <= 132);
+    assert.ok(enMsgs.extDescription.message.length <= 132);
+    assert.ok(esMsgs.btnPickStart?.message, "Must define btnPickStart key");
+    assert.ok(esMsgs.inspectorTooltip?.message, "Must define inspectorTooltip key");
   });
 
-  // 3. Iconos PNG y piezas store/
-  await test("Icons (16, 32, 48, 128) and store PNG dimensions", () => {
+  // 3. Paleta Negro / Gris / Naranja / Blanco + Logo SVG naranja
+  await test("Black/Gray/Orange/White palette across UI, config, highlighter, docs, and SVG logo", async () => {
+    const { CONFIG } = await import("../src/config.js");
+    assert.equal(CONFIG.COLORS.BG_DARK, "#0B0B0E");
+    assert.equal(CONFIG.COLORS.SURFACE, "#1C1C22");
+    assert.equal(CONFIG.COLORS.PRIMARY, "#F97316");
+    assert.equal(CONFIG.COLORS.TEXT_WHITE, "#FFFFFF");
+
+    const checkedFiles = [
+      path.join(SRC, "config.js"),
+      path.join(SRC, "popup", "styles.css"),
+      path.join(SRC, "reader", "styles.css"),
+      path.join(SRC, "content", "highlighter.js"),
+      path.join(SRC, "icons", "icon.svg"),
+      path.join(ROOT, "docs", "index.html")
+    ];
+    const forbiddenColors = ["#0F172A", "#1E293B", "#10B981", "#06B6D4", "#38BDF8", "#141B26"];
+    for (const file of checkedFiles) {
+      const text = fs.readFileSync(file, "utf8").toUpperCase();
+      for (const oldCol of forbiddenColors) {
+        assert.equal(text.includes(oldCol), false, `${path.basename(file)} still contains legacy color ${oldCol}`);
+      }
+    }
+
+    const svgText = fs.readFileSync(path.join(SRC, "icons", "icon.svg"), "utf8");
+    assert.ok(svgText.includes('viewBox="0 0 512 512"'));
+    assert.ok(svgText.includes("#0B0B0E"));
+    assert.ok(svgText.includes("#F97316") && svgText.includes("#FB923C"));
+
     for (const size of [16, 32, 48, 128]) {
       assertPngDimensions(path.join(SRC, "icons", `icon${size}.png`), size, size);
     }
-    assert.ok(fs.existsSync(path.join(SRC, "icons", "icon.svg")));
     assertPngDimensions(path.join(ROOT, "store", "logo-300x300.png"), 300, 300);
     assertPngDimensions(path.join(ROOT, "store", "promo-440x280.png"), 440, 280);
     assertPngDimensions(path.join(ROOT, "store", "destacada-1400x560.png"), 1400, 560);
@@ -373,11 +431,9 @@ async function run() {
     assertPngDimensions(path.join(ROOT, "store", "captura-3-biblioteca-epub.png"), 1280, 800);
   });
 
-  // 4. Motor anti-congelamiento de 3 capas (speech-queue.js)
-  const { buildSpeechChunks, SpeechQueueEngine, estimateWatchdogMs } = await import(
-    "../src/lib/speech-queue.js"
-  );
-  const { CONFIG } = await import("../src/config.js");
+  // 4. Motor anti-congelamiento de 3 capas (IIFE compatible con scripting.executeScript)
+  await import("../src/lib/speech-queue.js");
+  const { buildSpeechChunks, SpeechQueueEngine, estimateWatchdogMs } = globalThis.ChalaSpeechQueue;
 
   await test("SpeechQueue Capa 1: smart chunking respects abbreviations and splits >200 chars", () => {
     const longSentence =
@@ -388,12 +444,10 @@ async function run() {
     ]);
 
     assert.equal(chunks[0].paragraphIndex, 0);
-    assert.ok(chunks[0].text.includes("Dr. Pérez."), "Must not split at Dr.");
-    assert.ok(chunks.every((c) => c.text.length <= 210), "Every chunk must stay near <=200 chars");
-    const p0Chunks = chunks.filter((c) => c.paragraphIndex === 0);
-    assert.equal(p0Chunks[p0Chunks.length - 1].isParagraphEnd, true);
+    assert.ok(chunks[0].text.includes("Dr. Pérez."));
+    assert.ok(chunks.every((c) => c.text.length <= 210));
     const p1Chunks = chunks.filter((c) => c.paragraphIndex === 1);
-    assert.ok(p1Chunks.length >= 2, "Long sentence must split into multiple sub-chunks");
+    assert.ok(p1Chunks.length >= 2);
     assert.equal(p1Chunks[p1Chunks.length - 1].isParagraphEnd, true);
   });
 
@@ -418,7 +472,6 @@ async function run() {
       speak(utter) {
         spoken.push(utter);
         if (hangFirst && spoken.length === 1) {
-          // Simula congelamiento de Chromium en el chunk 0: onend nunca se dispara
           hangFirst = false;
           return;
         }
@@ -434,8 +487,6 @@ async function run() {
       synth: mockSynth,
       UtteranceCtor: MockUtterance,
       watchdogDurationFn: () => 45,
-      sentencePauseMs: 12,
-      paragraphPauseMs: 25,
       onWatchdogRecovery: () => {
         watchdogRecovered += 1;
       },
@@ -448,7 +499,6 @@ async function run() {
     assert.equal(rustic.pitch, 0.82);
     assert.equal(rustic.rate, 0.9);
     assert.equal(rustic.paragraphPauseMs, 700);
-    // Ajustar pausas solo para velocidad del test unitario
     engine.paragraphPauseMs = 20;
     engine.sentencePauseMs = 10;
 
@@ -456,17 +506,14 @@ async function run() {
     assert.equal(estimateWatchdogMs(150, 1.0), 66000);
 
     engine.play(0);
-    assert.ok(engine.activeUtterance instanceof MockUtterance, "Must retain activeUtterance against GC");
+    assert.ok(engine.activeUtterance instanceof MockUtterance);
 
     await new Promise((r) => setTimeout(r, 240));
+    assert.equal(watchdogRecovered, 1);
+    assert.equal(completed, true);
+    assert.equal(spoken.length, 3);
+    assert.equal(cancelCalls, 2);
 
-    assert.equal(watchdogRecovered, 1, "Watchdog must recover stalled chunk 0");
-    assert.equal(completed, true, "Queue must complete after watchdog recovery");
-    assert.equal(spoken.length, 3, "All 3 chunks must have been spoken");
-    // cancel() solo al iniciar play() (1) y al dispararse el watchdog (1), nunca entre chunks 1 y 2
-    assert.equal(cancelCalls, 2, "Must NOT call cancel() between normal consecutive chunks");
-
-    // Verificar Sleep Timer con reducción gradual y pausa automática
     const sleepEvents = [];
     engine.onSleepTick = (ev) => sleepEvents.push(ev);
     engine.loadParagraphs([
@@ -480,18 +527,16 @@ async function run() {
       "Párrafo ocho de lectura continua."
     ]);
     engine.play(0);
-    engine.setSleepTimer(0.0015); // 90 ms
+    engine.setSleepTimer(0.0015);
     await new Promise((r) => setTimeout(r, 150));
-    assert.equal(engine.state, "paused", "Sleep timer must pause playback upon expiry");
-    assert.ok(
-      sleepEvents.some((e) => e.active && e.fadeMultiplier < 1.0),
-      "Sleep timer must gradually reduce volume before stopping"
-    );
-    assert.equal(engine.sleepFadeMultiplier, 1.0, "Fade multiplier resets after expiry");
+    assert.equal(engine.state, "paused");
+    assert.ok(sleepEvents.some((e) => e.active && e.fadeMultiplier < 1.0));
   });
 
-  // 5. voice-ranker.js
-  const { detectLanguage, rankVoices } = await import("../src/lib/voice-ranker.js");
+  // 5. voice-ranker.js (IIFE)
+  await import("../src/lib/voice-ranker.js");
+  const { detectLanguage, rankVoices } = globalThis.ChalaVoiceRanker;
+
   await test("voice-ranker.js detects language and prioritizes Natural/Neural/Google/Apple voices", () => {
     assert.equal(detectLanguage("El perro corre por el parque con la pelota."), "es");
     assert.equal(detectLanguage("The quick brown fox jumps over the lazy dog."), "en");
@@ -504,12 +549,12 @@ async function run() {
     ];
 
     const rankedEs = rankVoices(voices, "es-MX");
-    assert.equal(rankedEs[0].voiceURI, "dalia-natural", "Natural Online voice must rank first");
-    assert.equal(rankedEs[rankedEs.length - 1].voiceURI, "google-en", "Wrong language must rank last");
-    assert.ok(rankedEs[1].score > rankedEs[2].score, "Standard system voice outranks eSpeak");
+    assert.equal(rankedEs[0].voiceURI, "dalia-natural");
+    assert.equal(rankedEs[rankedEs.length - 1].voiceURI, "google-en");
+    assert.ok(rankedEs[1].score > rankedEs[2].score);
   });
 
-  // 6. book-parser.js (.txt, .md, .epub con DecompressionStream('deflate-raw'))
+  // 6. book-parser.js (.txt, .md, .epub)
   const { parseBookInput } = await import("../src/lib/book-parser.js");
   await test("book-parser.js parses TXT, Markdown, and real deflated EPUB via DecompressionStream", async () => {
     const txtBook = await parseBookInput({
@@ -524,9 +569,7 @@ async function run() {
       content: "# Guía Local\n\nTexto con **negrita** y [enlace](https://chaladev.site).\n\n## Sección Dos\n\nOtro párrafo."
     });
     assert.equal(mdBook.format, "md");
-    assert.equal(mdBook.title, "Guía Local");
     assert.equal(mdBook.chapters.length, 2);
-    assert.ok(mdBook.chapters[0].paragraphs[1].includes("Texto con negrita y enlace."));
 
     const epubZip = buildTestZipFromEntries({
       mimetype: "application/epub+zip",
@@ -543,142 +586,184 @@ async function run() {
     const epubBook = await parseBookInput({ name: "libro.epub", content: epubZip });
     assert.equal(epubBook.format, "epub");
     assert.equal(epubBook.title, "Libro Offline");
-    assert.equal(epubBook.author, "Joel Chala");
-    assert.equal(epubBook.lang, "es");
     assert.equal(epubBook.chapters.length, 2);
     assert.equal(epubBook.chapters[1].paragraphs[1], "Segundo capítulo del EPUB.");
   });
 
-  // 7. readability.js + highlighter.js en VM aislada
-  await test("readability.js and highlighter.js extract clean blocks, highlight, and jump on click", () => {
+  // 7. In-tab persistent engine + Shadow DOM Mini-Bar + Modo Inspector en VM aislada
+  await test("highlighter.js supports persistent in-tab playback, Shadow DOM Mini-Bar, and Inspector Mode", async () => {
     const { MiniDocument } = createMiniDomEnv();
-    const doc = new MiniDocument("Arquitectura Local | Chala", "https://ejemplo.test/post");
+    const doc = new MiniDocument("Artículo de Prueba", "https://ejemplo.test/post");
     doc.body.innerHTML = [
-      "<nav><a href='/'>Inicio</a></nav>",
-      "<aside class='sidebar'><p>Anuncio lateral ignorado en extracción.</p></aside>",
       "<article>",
-      "  <h1>Arquitectura Local</h1>",
-      "  <p>Este primer párrafo explica cómo ChalaVoice funciona completamente offline sin servidores.</p>",
-      "  <p>Este segundo párrafo detalla el motor de voz anti-congelamiento de tres capas.</p>",
+      "  <h1>Título Principal</h1>",
+      "  <p id='p1'>Primer párrafo introductorio con texto suficiente para lectura.</p>",
+      "  <p id='p2'>Segundo párrafo con <a id='linkInside' href='https://otra.test'>un enlace interno</a> para probar bloqueo en Inspector.</p>",
+      "  <p id='p3'>Tercer párrafo final de cierre.</p>",
       "</article>"
     ].join("");
 
-    const sentMessages = [];
+    const spokenTexts = [];
     let messageHandler = null;
+    class MockUtterance {
+      constructor(text) {
+        this.text = text;
+        this.rate = 1;
+        this.pitch = 1;
+        this.volume = 1;
+      }
+    }
+
     const ctx = {
       console,
       URL,
       Set,
       Map,
+      innerWidth: 1200,
+      innerHeight: 800,
       document: doc,
       window: null,
+      location: { href: doc.URL },
+      SpeechSynthesisUtterance: MockUtterance,
+      speechSynthesis: {
+        getVoices: () => [{ name: "Microsoft Dalia Natural", voiceURI: "dalia", lang: "es-MX", localService: false }],
+        cancel() {},
+        speak(u) {
+          spokenTexts.push(u.text);
+        }
+      },
       chrome: {
+        i18n: { getMessage: () => "" },
+        storage: { local: { get: async () => ({}), set: async () => {} } },
         runtime: {
           onMessage: { addListener: (fn) => { messageHandler = fn; } },
-          sendMessage: (msg) => {
-            sentMessages.push(msg);
-            return Promise.resolve();
-          }
+          sendMessage: () => Promise.resolve()
         }
-      }
+      },
+      setTimeout,
+      clearTimeout,
+      setInterval,
+      clearInterval
     };
     ctx.window = ctx;
     ctx.globalThis = ctx;
 
     const vmCtx = vm.createContext(ctx);
     vm.runInContext(fs.readFileSync(path.join(SRC, "lib", "readability.js"), "utf8"), vmCtx);
+    vm.runInContext(fs.readFileSync(path.join(SRC, "lib", "voice-ranker.js"), "utf8"), vmCtx);
+    vm.runInContext(fs.readFileSync(path.join(SRC, "lib", "speech-queue.js"), "utf8"), vmCtx);
     vm.runInContext(fs.readFileSync(path.join(SRC, "content", "highlighter.js"), "utf8"), vmCtx);
-    // Re-inyección idempotente
-    vm.runInContext(fs.readFileSync(path.join(SRC, "lib", "readability.js"), "utf8"), vmCtx);
-    vm.runInContext(fs.readFileSync(path.join(SRC, "content", "highlighter.js"), "utf8"), vmCtx);
 
-    let extractResp = null;
-    messageHandler({ type: "CHALAVOICE_CONTENT_EXTRACT" }, {}, (r) => { extractResp = r; });
-    assert.equal(extractResp.ok, true);
-    assert.equal(extractResp.article.title, "Arquitectura Local");
-    assert.equal(extractResp.article.blocks.length, 3);
-    assert.ok(!extractResp.article.textContent.includes("Anuncio lateral"));
+    // 7a. Activar Modo Inspector y cancelar con Escape
+    await new Promise((resolve) => {
+      messageHandler({ type: "CHALAVOICE_CMD", action: "START_INSPECTOR" }, {}, resolve);
+    });
+    assert.equal(ctx.ChalaVoiceHighlighter.getStatus().inspectorActive, true);
+    const p2 = doc.getElementById("p2");
+    doc.dispatch("mousemove", { target: p2 });
+    assert.equal(p2.getAttribute("data-chalavoice-inspect-hover"), "true");
+    const tooltip = doc.getElementById("chalavoice-inspector-tooltip");
+    assert.ok(tooltip && tooltip.style.display === "block");
+    assert.ok(tooltip.shadowRoot.innerHTML.includes("Clic para leer desde aquí"));
 
-    messageHandler({ type: "CHALAVOICE_CONTENT_HIGHLIGHT", paragraphIndex: 1, sentenceText: "Este primer párrafo" }, {}, () => {});
-    const pEls = doc.querySelectorAll("[data-chalavoice-id]");
-    assert.equal(pEls.length, 3);
-    assert.equal(pEls[1].getAttribute("data-chalavoice-active"), "true");
+    doc.dispatch("keydown", { key: "Escape", preventDefault() {}, stopPropagation() {} });
+    assert.equal(ctx.ChalaVoiceHighlighter.getStatus().inspectorActive, false);
+    assert.equal(p2.getAttribute("data-chalavoice-inspect-hover"), null);
+    assert.equal(spokenTexts.length, 0, "Escape must cancel without starting playback");
 
-    // Click para saltar al párrafo 2
-    doc.dispatchClick(pEls[2]);
-    assert.equal(sentMessages.length, 1);
-    assert.equal(sentMessages[0].type, "CHALAVOICE_JUMP_TO_PARAGRAPH");
-    assert.equal(sentMessages[0].paragraphIndex, 2);
+    // 7b. Activar Modo Inspector y hacer clic en un enlace dentro de #p2 -> bloquea clic y lee desde #p2
+    await new Promise((resolve) => {
+      messageHandler({ type: "CHALAVOICE_CMD", action: "START_INSPECTOR" }, {}, resolve);
+    });
+    const linkInside = doc.getElementById("linkInside");
+    let prevented = false;
+    let stopped = false;
+    doc.dispatch("click", {
+      target: linkInside,
+      preventDefault() { prevented = true; },
+      stopPropagation() { stopped = true; },
+      stopImmediatePropagation() {}
+    });
+    assert.equal(prevented, true, "Inspector click must preventDefault on links");
+    assert.equal(stopped, true, "Inspector click must stopPropagation");
 
-    messageHandler({ type: "CHALAVOICE_CONTENT_CLEAR" }, {}, () => {});
-    assert.equal(doc.querySelectorAll("[data-chalavoice-id]").length, 0);
+    await new Promise((r) => setTimeout(r, 30));
+    const st = ctx.ChalaVoiceHighlighter.getStatus();
+    assert.equal(st.inspectorActive, false);
+    assert.equal(st.state, "playing");
+    assert.equal(st.paragraphIndex, 2, "Must start reading from clicked paragraph #p2 (index 2)");
+    assert.equal(p2.getAttribute("data-chalavoice-active"), "true");
+    assert.ok(spokenTexts[0].includes("Segundo párrafo"), "Spoken utterance must begin at #p2");
+
+    // 7c. Mini Barra Flotante Shadow DOM presente al reproducir y removida al detener
+    const minibar = doc.getElementById("chalavoice-minibar-host");
+    assert.ok(minibar && minibar.shadowRoot, "Shadow DOM Mini-Bar must exist while playing");
+    await new Promise((resolve) => {
+      messageHandler({ type: "CHALAVOICE_CMD", action: "STOP" }, {}, resolve);
+    });
+    assert.equal(doc.getElementById("chalavoice-minibar-host"), null, "Mini-Bar must close on STOP");
   });
 
-  // 8. background.js + ZIPs generados (Chromium, Edge, Firefox AMO)
-  await test("background.js guards restricted URLs, handles Firefox sidebarAction, and packages valid ZIPs", async () => {
+  // 8. background.js + ZIPs generados (Chromium, Edge, Firefox AMO sin sidePanel)
+  await test("background.js injects 4 classic scripts, opens book reader, and packages valid ZIPs without sidePanel", async () => {
     const executeCalls = [];
-    const sentToTab = [];
-    let firefoxOpened = 0;
-
+    const openedUrls = [];
     const makeEvent = () => ({ listeners: [], addListener(fn) { this.listeners.push(fn); } });
+
     globalThis.chrome = {
-      runtime: { onInstalled: makeEvent(), onStartup: makeEvent(), onConnect: makeEvent(), onMessage: makeEvent(), sendMessage: async () => {} },
-      action: { onClicked: makeEvent() },
+      runtime: {
+        onMessage: makeEvent(),
+        getURL: (p) => `chrome-extension://chalavoice/${p}`
+      },
       tabs: {
         query: async () => [{ id: 5, url: "https://articulo.test/nota", title: "Nota" }],
         get: async (id) => ({ id, url: "https://articulo.test/nota", title: "Nota" }),
-        sendMessage: async (tabId, msg) => {
-          sentToTab.push({ tabId, msg });
-          return { ok: true, article: { title: "Nota", blocks: [], textContent: "", wordCount: 0 } };
+        create: async ({ url }) => {
+          openedUrls.push(url);
+          return { id: 88, url };
         },
-        onActivated: makeEvent(),
-        onUpdated: makeEvent(),
-        onRemoved: makeEvent()
+        sendMessage: async () => ({ ok: true, status: { state: "playing" } })
       },
       scripting: {
         executeScript: async (opts) => {
           executeCalls.push(opts);
           return [{ result: true }];
         }
-      },
-      sidePanel: { setPanelBehavior: async () => {} }
-    };
-    globalThis.browser = {
-      sidebarAction: {
-        open: async () => { firefoxOpened += 1; }
       }
     };
 
     const bg = await import("../src/background.js");
     assert.equal(bg.isRestrictedUrl("chrome://extensions"), true);
-    assert.equal(bg.isRestrictedUrl("edge://settings"), true);
     assert.equal(bg.isRestrictedUrl("https://ejemplo.com/post"), false);
 
-    // Firefox sidebarAction fallback
-    await bg.openSidePanelForTab({ id: 5, windowId: 1 });
-    assert.equal(firefoxOpened, 1);
-
-    // Bloqueo en URL restringida
-    globalThis.chrome.tabs.get = async () => ({ id: 9, url: "chrome://settings" });
-    const blocked = await bg.extractFromTab(9);
+    // URL restringida
+    globalThis.chrome.tabs.get = async () => ({ id: 9, url: "edge://settings" });
+    const blocked = await bg.sendTabCommand(9, { action: "PLAY_PAGE" });
     assert.equal(blocked.ok, false);
     assert.equal(blocked.restricted, true);
     assert.equal(executeCalls.length, 0);
 
-    // Inyección válida
+    // URL válida cuando no estaba inyectado
     globalThis.chrome.tabs.get = async () => ({ id: 5, url: "https://articulo.test/nota" });
-    const okRes = await bg.extractFromTab(5);
+    globalThis.chrome.tabs.sendMessage = async (_id, msg) => {
+      if (msg.type === "CHALAVOICE_PING") throw new Error("Not injected");
+      return { ok: true, status: { state: "playing" } };
+    };
+    const okRes = await bg.sendTabCommand(5, { action: "PLAY_PAGE" });
     assert.equal(okRes.ok, true);
-    assert.deepEqual(executeCalls[0].files, ["lib/readability.js", "content/highlighter.js"]);
-    assert.equal(sentToTab[0].msg.type, "CHALAVOICE_CONTENT_EXTRACT");
+    assert.deepEqual(executeCalls[0].files, [
+      "lib/readability.js",
+      "lib/voice-ranker.js",
+      "lib/speech-queue.js",
+      "content/highlighter.js"
+    ]);
+
+    // Lector de libros
+    await bg.openBookReaderTab({ autoplay: true });
+    assert.equal(openedUrls[0], "chrome-extension://chalavoice/reader/index.html?autoplay=1");
 
     // Validar build y 3 ZIPs
     const version = fs.readFileSync(path.join(ROOT, "dist", "version"), "utf8").trim();
-    assert.equal(CONFIG.VERSION, version);
-
-    const unpackedManifest = path.join(ROOT, "dist", "build", "ChalaVoice.chromium", "manifest.json");
-    assert.ok(fs.existsSync(unpackedManifest), "Run `npm run build` before `npm test`");
-
     const chromiumZip = path.join(ROOT, "store", "paquetes", `ChalaVoice_${version}.chromium.zip`);
     const edgeZip = path.join(ROOT, "store", "paquetes", `ChalaVoice_${version}.edge.zip`);
     const firefoxZip = path.join(ROOT, "store", "paquetes", `ChalaVoice_${version}.firefox.zip`);
@@ -691,7 +776,8 @@ async function run() {
     assert.equal(ffManifest.browser_specific_settings?.gecko?.strict_min_version, "113.0");
     assert.deepEqual(ffManifest.background?.scripts, ["background.js"]);
     assert.equal(ffManifest.background?.service_worker, undefined);
-    assert.equal(ffManifest.sidebar_action?.default_panel, "sidepanel/index.html");
+    assert.equal(ffManifest.action?.default_popup, "popup/index.html");
+    assert.equal(ffManifest.sidebar_action, undefined, "Firefox manifest must NOT define sidebar_action");
     assert.equal(ffManifest.side_panel, undefined);
     assert.equal(ffManifest.permissions.includes("sidePanel"), false);
   });

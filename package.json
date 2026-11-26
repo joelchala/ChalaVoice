@@ -1,6 +1,6 @@
 {
   "name": "chalavoice",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Lector en voz alta 100% local con perfiles de voz, modo libro (EPUB/MD/TXT) y resaltado en vivo (Manifest V3) - Suite Chala",
   "type": "module",
   "scripts": {

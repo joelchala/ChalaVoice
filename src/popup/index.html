@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ChalaVoice</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="popup-shell">
+    <header class="topbar">
+      <div class="brand">
+        <img src="../icons/icon32.png" alt="ChalaVoice" class="brand-icon" width="24" height="24" />
+        <div class="brand-meta">
+          <h1>ChalaVoice</h1>
+          <span class="tagline" data-i18n="appTagline">100% local · Sin telemetría</span>
+        </div>
+      </div>
+      <span id="statusBadge" class="status-pill" data-state="idle" data-i18n="statusReady">Listo</span>
+    </header>
+
+    <nav class="mode-tabs" role="tablist">
+      <button id="tabBtnWeb" class="mode-tab active" role="tab" aria-selected="true" data-i18n="tabWeb">Página Web</button>
+      <button id="tabBtnBooks" class="mode-tab" role="tab" aria-selected="false" data-i18n="tabBooks">Libros y Textos</button>
+    </nav>
+
+    <!-- PESTAÑA 1: PÁGINA WEB -->
+    <section id="viewWeb" class="tab-view">
+      <div class="card tab-card">
+        <div class="tab-head">
+          <div class="tab-info">
+            <div id="activeTabTitle" class="tab-title">Cargando pestaña...</div>
+            <div id="activeTabUrl" class="tab-url"></div>
+          </div>
+          <button id="btnRefreshTab" class="btn-icon" title="Actualizar pestaña" aria-label="Actualizar pestaña">↻</button>
+        </div>
+
+        <div id="restrictedNotice" class="alert-restricted hidden" data-i18n="restrictedUrlNotice">
+          Página interna o protegida del navegador. Abre un artículo web o usa Libros y Textos.
+        </div>
+
+        <div class="web-actions">
+          <button id="btnReadPage" class="btn-primary" data-i18n="btnReadCurrentPage">Leer página actual</button>
+          <button id="btnPickStart" class="btn-inspector" title="Señala cualquier párrafo en la web">
+            <span class="inspect-icon">🎯</span>
+            <span data-i18n="btnPickStart">Seleccionar párrafo inicial</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PESTAÑA 2: LIBROS Y TEXTOS -->
+    <section id="viewBooks" class="tab-view hidden">
+      <div class="card books-card">
+        <div id="dropZone" class="drop-zone" tabindex="0" role="button">
+          <input id="fileInput" type="file" accept=".epub,.md,.markdown,.txt,text/plain,text/markdown,application/epub+zip" hidden />
+          <span class="drop-title" data-i18n="dropZoneTitle">Arrastra un archivo .epub, .md o .txt</span>
+          <span class="drop-sub" data-i18n="dropZoneSubtitle">O haz clic para seleccionarlo (100% offline)</span>
+        </div>
+
+        <div class="books-toolbar">
+          <button id="btnTogglePaste" class="btn-secondary" data-i18n="btnPasteText">Pegar texto directo</button>
+          <button id="btnOpenReader" class="btn-primary" data-i18n="btnOpenReader">Abrir Lector de Libros</button>
+        </div>
+
+        <div id="pastePanel" class="paste-panel hidden">
+          <input id="pasteTitleInput" type="text" class="text-input" data-i18n-placeholder="pasteTitlePlaceholder" placeholder="Título opcional" />
+          <textarea id="pasteTextArea" rows="3" class="text-area" data-i18n-placeholder="pastePlaceholder" placeholder="Pega aquí tu texto..."></textarea>
+          <button id="btnLoadPasted" class="btn-primary" data-i18n="btnLoadPasted">Cargar texto</button>
+        </div>
+
+        <div class="library-head">
+          <span data-i18n="libraryHeading">Biblioteca Local</span>
+          <span id="libraryCount" class="count-badge">0</span>
+        </div>
+        <div id="libraryList" class="library-list">
+          <p class="muted-empty" data-i18n="libraryEmpty">Sin libros guardados aún.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- REPRODUCTOR Y ESTUDIO DE VOZ -->
+    <section class="player-card">
+      <div id="liveCaption" class="live-caption" data-i18n="emptyWebPrompt">
+        Pulsa «Leer página actual» o «Seleccionar párrafo inicial».
+      </div>
+
+      <div class="progress-wrap">
+        <input id="progressScrubber" type="range" min="0" max="100" value="0" aria-label="Progreso de lectura" />
+        <div class="progress-labels">
+          <span id="progressCounter">0 / 0</span>
+          <span id="sleepCountdown" class="sleep-badge hidden"></span>
+        </div>
+      </div>
+
+      <div class="transport-row">
+        <button id="btnPrevPara" class="btn-transport" title="Párrafo anterior" aria-label="Párrafo anterior">⏮</button>
+        <button id="btnPlayPause" class="btn-play" title="Reproducir / Pausar" aria-label="Reproducir o pausar">▶</button>
+        <button id="btnStop" class="btn-transport" title="Detener" aria-label="Detener">⏹</button>
+        <button id="btnNextPara" class="btn-transport" title="Párrafo siguiente" aria-label="Párrafo siguiente">⏭</button>
+      </div>
+
+      <div class="presets-grid">
+        <button class="preset-btn" data-preset="rustic" data-i18n="presetRustic">Narrador Rústico</button>
+        <button class="preset-btn" data-preset="soft" data-i18n="presetSoft">Voz Suave</button>
+        <button class="preset-btn" data-preset="study" data-i18n="presetStudy">Modo Estudio</button>
+        <button class="preset-btn active" data-preset="natural" data-i18n="presetNatural">Natural</button>
+      </div>
+
+      <div class="control-row">
+        <label for="voiceSelect" data-i18n="labelVoice">Voz del sistema</label>
+        <select id="voiceSelect" class="select-input"></select>
+      </div>
+
+      <div class="sliders-grid">
+        <div class="slider-item">
+          <div class="slider-head">
+            <label for="rateRange" data-i18n="labelRate">Velocidad</label>
+            <span id="rateValue">1.00x</span>
+          </div>
+          <input id="rateRange" type="range" min="0.6" max="2.0" step="0.02" value="1.0" />
+        </div>
+
+        <div class="slider-item">
+          <div class="slider-head">
+            <label for="pitchRange" data-i18n="labelPitch">Tono</label>
+            <span id="pitchValue">1.00</span>
+          </div>
+          <input id="pitchRange" type="range" min="0.6" max="1.4" step="0.02" value="1.0" />
+        </div>
+
+        <div class="slider-item">
+          <div class="slider-head">
+            <label for="volumeRange" data-i18n="labelVolume">Volumen</label>
+            <span id="volumeValue">100%</span>
+          </div>
+          <input id="volumeRange" type="range" min="0" max="1" step="0.05" value="1.0" />
+        </div>
+
+        <div class="slider-item">
+          <div class="slider-head">
+            <label for="sleepSelect" data-i18n="labelSleepTimer">Temporizador</label>
+          </div>
+          <select id="sleepSelect" class="select-input compact">
+            <option value="0" data-i18n="sleepOff">Apagado</option>
+            <option value="15">15 min</option>
+            <option value="30">30 min</option>
+            <option value="45">45 min</option>
+            <option value="60">60 min</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <footer class="popup-footer">
+      <a id="linkSuite" href="https://chaladev.site" target="_blank" rel="noopener noreferrer" data-i18n="footerSuite">Suite Chala</a>
+      <span>·</span>
+      <a id="linkGithub" href="https://github.com/joelchala/ChalaVoice" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <span>·</span>
+      <a id="linkDonate" href="https://www.paypal.com/ncp/payment/VSWPSS7D4ZRH2" target="_blank" rel="noopener noreferrer" data-i18n="footerDonate">Apoyar en PayPal</a>
+    </footer>
+  </div>
+
+  <script src="../lib/voice-ranker.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

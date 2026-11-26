@@ -1,22 +1,14 @@
 import { isRestrictedUrl } from "./config.js";
 
-let highlightedTabs = new Set();
+const CONTENT_SCRIPT_FILES = [
+  "lib/readability.js",
+  "lib/voice-ranker.js",
+  "lib/speech-queue.js",
+  "content/highlighter.js"
+];
 
 /**
- * Configura el Side Panel para que action.onClicked siempre se dispare,
- * otorgando activeTab y abriendo el panel lateral (Chromium/Edge) o sidebarAction (Firefox).
- */
-export async function configureSidePanelBehavior() {
-  if (!chrome.sidePanel?.setPanelBehavior) return;
-  try {
-    await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
-  } catch {
-    // Ignorar en navegadores sin setPanelBehavior
-  }
-}
-
-/**
- * Obtiene la pestaña activa de la ventana actual o de la última ventana enfocada.
+ * Obtiene la pestaña activa de la ventana actual o la última ventana enfocada.
  * @returns {Promise<chrome.tabs.Tab|null>}
  */
 export async function getActiveTab() {
@@ -26,47 +18,8 @@ export async function getActiveTab() {
   return fallback?.[0] || null;
 }
 
-function notifyPanel(payload) {
-  try {
-    const maybePromise = chrome.runtime.sendMessage(payload);
-    if (maybePromise && typeof maybePromise.catch === "function") {
-      maybePromise.catch(() => {});
-    }
-  } catch {
-    // El panel lateral puede no estar abierto todavía
-  }
-}
-
 /**
- * Abre el panel lateral nativo de Chromium/Edge o sidebarAction en Firefox
- * preservando el gesto de usuario de forma síncrona.
- * @param {chrome.tabs.Tab} tab
- */
-export function openSidePanelForTab(tab) {
-  if (chrome.sidePanel?.open && typeof tab?.windowId === "number") {
-    return Promise.resolve(chrome.sidePanel.open({ windowId: tab.windowId }))
-      .catch(() => {})
-      .finally(() => {
-        notifyPanel({ type: "CHALAVOICE_TAB_UPDATED", tabId: tab?.id ?? null });
-      });
-  }
-
-  const firefoxSidebarOpen =
-    globalThis.browser?.sidebarAction?.open || chrome.sidebarAction?.open;
-  if (typeof firefoxSidebarOpen === "function") {
-    return Promise.resolve(firefoxSidebarOpen())
-      .catch(() => {})
-      .finally(() => {
-        notifyPanel({ type: "CHALAVOICE_TAB_UPDATED", tabId: tab?.id ?? null });
-      });
-  }
-
-  notifyPanel({ type: "CHALAVOICE_TAB_UPDATED", tabId: tab?.id ?? null });
-  return Promise.resolve();
-}
-
-/**
- * Consulta la información básica de la pestaña activa y si está restringida.
+ * Consulta la información básica de la pestaña activa y valida si es una URL restringida.
  */
 export async function getActiveTabInfo() {
   const tab = await getActiveTab();
@@ -86,11 +39,36 @@ export async function getActiveTabInfo() {
 }
 
 /**
- * Inyecta readability.js + highlighter.js en la pestaña indicada (si no está restringida)
- * y extrae los bloques legibles del artículo para lectura en voz alta.
- * @param {number} [explicitTabId]
+ * Inyecta los scripts locales en la pestaña destino solo si aún no están activos,
+ * preservando cualquier reproducción en curso cuando el usuario reabre el Popup.
+ * @param {number} tabId
  */
-export async function extractFromTab(explicitTabId) {
+export async function ensureContentInjected(tabId) {
+  let ping = null;
+  try {
+    ping = await chrome.tabs.sendMessage(tabId, { type: "CHALAVOICE_PING" });
+  } catch {
+    ping = null;
+  }
+
+  if (ping?.alive) {
+    return { ok: true, alreadyInjected: true, status: ping.status || null };
+  }
+
+  await chrome.scripting.executeScript({
+    target: { tabId },
+    files: CONTENT_SCRIPT_FILES
+  });
+
+  return { ok: true, alreadyInjected: false, status: null };
+}
+
+/**
+ * Envía un comando de reproducción o Modo Inspector a una pestaña accesible.
+ * @param {number|null|undefined} explicitTabId
+ * @param {object} commandPayload
+ */
+export async function sendTabCommand(explicitTabId, commandPayload) {
   const tab =
     typeof explicitTabId === "number"
       ? (await chrome.tabs.get?.(explicitTabId).catch(() => null)) || (await getActiveTab())
@@ -113,32 +91,18 @@ export async function extractFromTab(explicitTabId) {
   }
 
   try {
-    await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      files: ["lib/readability.js", "content/highlighter.js"]
-    });
-
+    await ensureContentInjected(tab.id);
     const response = await chrome.tabs.sendMessage(tab.id, {
-      type: "CHALAVOICE_CONTENT_EXTRACT"
+      ...commandPayload,
+      type: "CHALAVOICE_CMD"
     });
-
-    if (!response?.ok) {
-      return {
-        ok: false,
-        restricted: false,
-        reason: response?.reason || "EXTRACTION_FAILED",
-        tabId: tab.id,
-        url: rawUrl
-      };
-    }
-
-    highlightedTabs.add(tab.id);
     return {
-      ok: true,
+      ok: Boolean(response?.ok),
       restricted: false,
       tabId: tab.id,
       url: rawUrl,
-      article: response.article
+      status: response?.status || null,
+      reason: response?.reason || null
     };
   } catch (err) {
     const msg = (err instanceof Error ? err.message : String(err || "")).toLowerCase();
@@ -160,144 +124,75 @@ export async function extractFromTab(explicitTabId) {
   }
 }
 
-async function clearAllHighlights() {
-  const targets = Array.from(highlightedTabs);
-  highlightedTabs.clear();
-  await Promise.allSettled(
-    targets.map((tabId) =>
-      chrome.tabs
-        .sendMessage(tabId, { type: "CHALAVOICE_CONTENT_CLEAR" })
-        .catch(() => {})
-    )
-  );
+/**
+ * Abre o enfoca la pestaña dedicada del Lector de Libros (src/reader/index.html)
+ * para que la reproducción de .epub / .md / .txt continúe aunque se cierre el Popup.
+ */
+export async function openBookReaderTab(options = {}) {
+  const readerBaseUrl = chrome.runtime.getURL("reader/index.html");
+  const targetUrl = options.autoplay ? `${readerBaseUrl}?autoplay=1` : readerBaseUrl;
+
+  if (typeof chrome.tabs?.query === "function") {
+    const tabs = await chrome.tabs.query({});
+    const existing = (tabs || []).find((t) => typeof t.url === "string" && t.url.startsWith(readerBaseUrl));
+    if (existing && typeof existing.id === "number") {
+      await chrome.tabs.update?.(existing.id, { active: true });
+      if (typeof existing.windowId === "number" && chrome.windows?.update) {
+        await chrome.windows.update(existing.windowId, { focused: true }).catch(() => {});
+      }
+      if (options.autoplay) {
+        await chrome.tabs.sendMessage(existing.id, { type: "CHALAVOICE_READER_RELOAD_AND_PLAY" }).catch(() => {});
+      }
+      return { ok: true, tabId: existing.id, reused: true };
+    }
+  }
+
+  const created = await chrome.tabs.create({ url: targetUrl });
+  return { ok: true, tabId: created?.id ?? null, reused: false };
 }
 
 /**
- * Registra todos los listeners del Service Worker / background script MV3.
+ * Registra listeners del Service Worker / background script MV3.
  */
 export function registerBackgroundListeners() {
-  highlightedTabs = new Set();
+  if (!chrome.runtime?.onMessage) return;
 
-  if (chrome.runtime.onInstalled) {
-    chrome.runtime.onInstalled.addListener(() => {
-      configureSidePanelBehavior();
-    });
-  }
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (sender?.tab && message?.type === "CHALAVOICE_STATE_UPDATE") {
+      return false;
+    }
 
-  if (chrome.runtime.onStartup) {
-    chrome.runtime.onStartup.addListener(() => {
-      configureSidePanelBehavior();
-    });
-  }
-
-  if (chrome.action?.onClicked) {
-    chrome.action.onClicked.addListener((tab) => {
-      openSidePanelForTab(tab);
-    });
-  }
-
-  if (chrome.tabs?.onActivated) {
-    chrome.tabs.onActivated.addListener(({ tabId }) => {
-      notifyPanel({ type: "CHALAVOICE_TAB_UPDATED", tabId });
-    });
-  }
-
-  if (chrome.tabs?.onUpdated) {
-    chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-      if (tab?.active && (changeInfo.status === "complete" || changeInfo.url || changeInfo.title)) {
-        notifyPanel({ type: "CHALAVOICE_TAB_UPDATED", tabId });
+    const handleAsync = async () => {
+      switch (message?.type) {
+        case "CHALAVOICE_GET_TAB_INFO":
+          return getActiveTabInfo();
+        case "CHALAVOICE_TAB_COMMAND":
+          return sendTabCommand(message.tabId, message.payload || {});
+        case "CHALAVOICE_OPEN_READER":
+          return openBookReaderTab({ autoplay: Boolean(message.autoplay) });
+        default:
+          return null;
       }
+    };
+
+    const known = new Set([
+      "CHALAVOICE_GET_TAB_INFO",
+      "CHALAVOICE_TAB_COMMAND",
+      "CHALAVOICE_OPEN_READER"
+    ]);
+    if (!known.has(message?.type)) {
+      return false;
+    }
+
+    handleAsync().then(sendResponse, () => {
+      sendResponse({ ok: false, restricted: true, reason: "UNKNOWN_ERROR" });
     });
-  }
-
-  if (chrome.tabs?.onRemoved) {
-    chrome.tabs.onRemoved.addListener((tabId) => {
-      highlightedTabs.delete(tabId);
-    });
-  }
-
-  if (chrome.runtime.onConnect) {
-    chrome.runtime.onConnect.addListener((port) => {
-      if (port?.name !== "chalavoice-sidepanel") return;
-      if (port.onDisconnect?.addListener) {
-        port.onDisconnect.addListener(() => {
-          clearAllHighlights();
-        });
-      }
-    });
-  }
-
-  if (chrome.runtime.onMessage) {
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      if (sender?.tab) {
-        if (message?.type === "CHALAVOICE_JUMP_TO_PARAGRAPH") {
-          notifyPanel({
-            type: "CHALAVOICE_PANEL_JUMP",
-            tabId: sender.tab.id,
-            paragraphIndex: Number(message.paragraphIndex) || 0
-          });
-        }
-        return false;
-      }
-
-      const handleAsync = async () => {
-        switch (message?.type) {
-          case "CHALAVOICE_GET_TAB_INFO":
-            return getActiveTabInfo();
-          case "CHALAVOICE_EXTRACT_TAB":
-            return extractFromTab(message.tabId);
-          case "CHALAVOICE_HIGHLIGHT_CHUNK":
-            if (typeof message.tabId === "number") {
-              highlightedTabs.add(message.tabId);
-              await chrome.tabs
-                .sendMessage(message.tabId, {
-                  type: "CHALAVOICE_CONTENT_HIGHLIGHT",
-                  paragraphIndex: Number(message.paragraphIndex) || 0,
-                  sentenceText: String(message.sentenceText || "")
-                })
-                .catch(() => {});
-            }
-            return { ok: true };
-          case "CHALAVOICE_CLEAR_HIGHLIGHT":
-            if (typeof message.tabId === "number") {
-              highlightedTabs.delete(message.tabId);
-              await chrome.tabs
-                .sendMessage(message.tabId, { type: "CHALAVOICE_CONTENT_CLEAR" })
-                .catch(() => {});
-            } else {
-              await clearAllHighlights();
-            }
-            return { ok: true };
-          default:
-            return null;
-        }
-      };
-
-      const knownTypes = new Set([
-        "CHALAVOICE_GET_TAB_INFO",
-        "CHALAVOICE_EXTRACT_TAB",
-        "CHALAVOICE_HIGHLIGHT_CHUNK",
-        "CHALAVOICE_CLEAR_HIGHLIGHT"
-      ]);
-      if (!knownTypes.has(message?.type)) {
-        return false;
-      }
-
-      handleAsync().then(sendResponse, () => {
-        sendResponse({ ok: false, restricted: true, reason: "UNKNOWN_ERROR" });
-      });
-      return true;
-    });
-  }
+    return true;
+  });
 }
 
 export { isRestrictedUrl };
 
-if (
-  typeof chrome !== "undefined" &&
-  chrome.runtime &&
-  (chrome.sidePanel || globalThis.browser?.sidebarAction || chrome.sidebarAction)
-) {
-  configureSidePanelBehavior();
+if (typeof chrome !== "undefined" && chrome.runtime?.onMessage) {
   registerBackgroundListeners();
 }

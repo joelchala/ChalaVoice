@@ -74,15 +74,7 @@ export function toFirefoxManifest(manifest, geckoId = "chalavoice@chaladev.site"
     };
   }
 
-  if (ff.side_panel?.default_path) {
-    ff.sidebar_action = {
-      default_panel: ff.side_panel.default_path,
-      default_title: "ChalaVoice",
-      default_icon: ff.action?.default_icon || ff.icons
-    };
-    delete ff.side_panel;
-  }
-
+  delete ff.side_panel;
   if (Array.isArray(ff.permissions)) {
     ff.permissions = ff.permissions.filter((perm) => perm !== "sidePanel");
   }

@@ -8,7 +8,7 @@
     "description": "Descripción corta para tiendas (<= 132 caracteres)"
   },
   "actionTitle": {
-    "message": "Abrir ChalaVoice (Panel Lateral)",
+    "message": "ChalaVoice — Leer página o libros",
     "description": "Título del botón de la barra de herramientas"
   },
   "appTagline": {
@@ -27,16 +27,28 @@
     "message": "Leer página actual",
     "description": "Botón para extraer y leer la pestaña activa"
   },
+  "btnPickStart": {
+    "message": "Seleccionar párrafo inicial",
+    "description": "Botón para activar el Modo Inspector visual"
+  },
+  "inspectorTooltip": {
+    "message": "Clic para leer desde aquí · Esc para cancelar",
+    "description": "Etiqueta flotante del modo inspector"
+  },
+  "btnOpenReader": {
+    "message": "Abrir Lector de Libros",
+    "description": "Botón para abrir el lector dedicado de libros"
+  },
   "btnRefreshTab": {
     "message": "Actualizar pestaña",
     "description": "Botón para consultar el estado de la pestaña"
   },
   "restrictedUrlNotice": {
-    "message": "Esta pestaña es una página interna o protegida del navegador. Abre un artículo web o usa la pestaña Libros y Textos.",
+    "message": "Página interna o protegida del navegador. Abre un artículo web o usa Libros y Textos.",
     "description": "Aviso en URLs restringidas"
   },
   "emptyWebPrompt": {
-    "message": "Pulsa «Leer página actual» para extraer el artículo limpio y escucharlo con resaltado en vivo.",
+    "message": "Pulsa «Leer página actual» o usa «Seleccionar párrafo inicial» para señalar el punto exacto.",
     "description": "Texto inicial en pestaña Página Web"
   },
   "dropZoneTitle": {

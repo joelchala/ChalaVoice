@@ -17,6 +17,6 @@ npm run icons
 | `store/captura-2-perfiles-voz.png` | `1280 × 800` | Captura 2: Estudio de voz y presets acústicos |
 | `store/captura-3-biblioteca-epub.png` | `1280 × 800` | Captura 3: Biblioteca local EPUB / MD / TXT |
 | `src/icons/icon16.png` | `16 × 16` | Icono de barra de herramientas |
-| `src/icons/icon32.png` | `32 × 32` | Icono de panel lateral y alta densidad |
+| `src/icons/icon32.png` | `32 × 32` | Icono de popup y alta densidad |
 | `src/icons/icon48.png` | `48 × 48` | Página de administración de extensiones |
 | `src/icons/icon128.png` | `128 × 128` | Chrome Web Store / Instalador |

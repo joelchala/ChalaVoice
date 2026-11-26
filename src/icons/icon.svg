@@ -1,21 +1,102 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0F172A" />
-      <stop offset="100%" stop-color="#1E293B" />
+    <linearGradient id="speakerBody" x1="0.15" y1="0.1" x2="0.85" y2="0.9">
+      <stop offset="0%" stop-color="#2A2A32" />
+      <stop offset="50%" stop-color="#1C1C22" />
+      <stop offset="100%" stop-color="#121216" />
     </linearGradient>
-    <linearGradient id="shieldGrad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#10B981" />
-      <stop offset="100%" stop-color="#06B6D4" />
+    <linearGradient id="micSteel" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#CBD5E1" />
+      <stop offset="28%" stop-color="#E2E8F0" />
+      <stop offset="56%" stop-color="#94A3B8" />
+      <stop offset="100%" stop-color="#64748B" />
     </linearGradient>
+    <linearGradient id="micYoke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#CBD5E1" />
+      <stop offset="45%" stop-color="#94A3B8" />
+      <stop offset="100%" stop-color="#52525B" />
+    </linearGradient>
+    <linearGradient id="orangeWave" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FB923C" />
+      <stop offset="100%" stop-color="#F97316" />
+    </linearGradient>
+    <clipPath id="capsuleClip">
+      <rect x="208" y="114" width="96" height="216" rx="48" />
+    </clipPath>
   </defs>
-  <rect x="4" y="4" width="120" height="120" rx="28" fill="url(#bgGrad)" stroke="#1E293B" stroke-width="2" />
-  <path d="M64 16 L104 29 L104 62 C104 86 87 104 64 114 C41 104 24 86 24 62 L24 29 Z" fill="url(#shieldGrad)" />
-  <path d="M64 23 L97 34 L97 61 C97 82 83 97 64 106 C45 97 31 82 31 61 L31 34 Z" fill="#0F172A" />
-  <!-- Acoustic wave / voice bars inside shield -->
-  <rect x="40" y="56" width="6" height="18" rx="3" fill="#06B6D4" />
-  <rect x="51" y="46" width="6" height="38" rx="3" fill="#10B981" />
-  <rect x="61" y="38" width="6" height="54" rx="3" fill="#F1F5F9" />
-  <rect x="71" y="46" width="6" height="38" rx="3" fill="#10B981" />
-  <rect x="82" y="56" width="6" height="18" rx="3" fill="#06B6D4" />
+
+  <!-- Fondo negro profundo -->
+  <rect x="0" y="0" width="512" height="512" fill="#0B0B0E" />
+
+  <!-- Capa trasera: Parlante circular negro mate (~76% del lienzo) -->
+  <circle cx="256" cy="258" r="194" fill="url(#speakerBody)" stroke="#09090B" stroke-width="6" />
+  <circle cx="256" cy="258" r="189" fill="none" stroke="#3F3F46" stroke-width="1.5" opacity="0.55" />
+
+  <!-- 4 tornillos simétricos a 45°, 135°, 225° y 315° -->
+  <g fill="#08080A" stroke="#2A2A32" stroke-width="1.5">
+    <circle cx="143" cy="145" r="9.5" />
+    <circle cx="369" cy="145" r="9.5" />
+    <circle cx="143" cy="371" r="9.5" />
+    <circle cx="369" cy="371" r="9.5" />
+  </g>
+
+  <!-- 3 anillos concéntricos alternando negro carbón (#0B0B0E) y gris grafito (#2A2A32) -->
+  <circle cx="256" cy="258" r="134" fill="#0B0B0E" />
+  <circle cx="256" cy="258" r="122" fill="#2A2A32" />
+  <circle cx="256" cy="258" r="110" fill="#0B0B0E" />
+  <circle cx="256" cy="258" r="98" fill="#222228" />
+  <circle cx="256" cy="258" r="86" fill="#0B0B0E" />
+  <circle cx="256" cy="258" r="74" fill="#1C1C22" />
+
+  <!-- Acento lateral: 3 arcos concéntricos de sonido naranja (#FB923C -> #F97316) -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M 339 213 A 82 82 0 0 1 339 293" stroke="#09090B" stroke-width="16" />
+    <path d="M 354 193 A 106 106 0 0 1 354 313" stroke="#09090B" stroke-width="16" />
+    <path d="M 369 172 A 130 130 0 0 1 369 334" stroke="#09090B" stroke-width="16" />
+
+    <path d="M 339 213 A 82 82 0 0 1 339 293" stroke="url(#orangeWave)" stroke-width="10" />
+    <path d="M 354 193 A 106 106 0 0 1 354 313" stroke="url(#orangeWave)" stroke-width="10" />
+    <path d="M 369 172 A 130 130 0 0 1 369 334" stroke="url(#orangeWave)" stroke-width="10" />
+  </g>
+
+  <!-- Capa frontal: Contorno oscuro grueso del micrófono de estudio -->
+  <g fill="#09090B" stroke="#09090B" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="208" y="114" width="96" height="216" rx="48" stroke-width="14" />
+    <path d="M 197 224 L 197 282 A 59 59 0 0 0 315 282 L 315 224" fill="none" stroke-width="26" />
+    <rect x="243" y="344" width="26" height="46" stroke-width="12" />
+    <rect x="198" y="390" width="116" height="18" rx="9" stroke-width="12" />
+  </g>
+
+  <!-- Cápsula principal del micrófono gris acero -->
+  <g clip-path="url(#capsuleClip)">
+    <rect x="208" y="114" width="96" height="216" fill="url(#micSteel)" />
+    <rect x="224" y="114" width="14" height="216" fill="#E2E8F0" opacity="0.7" />
+    <rect x="282" y="114" width="22" height="216" fill="#475569" opacity="0.45" />
+    <g fill="#09090B">
+      <rect x="204" y="156" width="33" height="9" rx="4.5" />
+      <rect x="204" y="172" width="33" height="9" rx="4.5" />
+      <rect x="204" y="188" width="33" height="9" rx="4.5" />
+      <rect x="204" y="204" width="33" height="9" rx="4.5" />
+
+      <rect x="275" y="156" width="33" height="9" rx="4.5" />
+      <rect x="275" y="172" width="33" height="9" rx="4.5" />
+      <rect x="275" y="188" width="33" height="9" rx="4.5" />
+      <rect x="275" y="204" width="33" height="9" rx="4.5" />
+    </g>
+    <rect x="208" y="224" width="96" height="5" fill="#09090B" />
+    <rect x="208" y="229" width="96" height="24" fill="url(#micSteel)" />
+    <rect x="208" y="229" width="96" height="4" fill="#E2E8F0" opacity="0.8" />
+    <rect x="208" y="253" width="96" height="5" fill="#09090B" />
+  </g>
+
+  <!-- Abrazadera metálica en U -->
+  <path d="M 197 224 L 197 282 A 59 59 0 0 0 315 282 L 315 224" fill="none" stroke="url(#micYoke)" stroke-width="14" stroke-linecap="butt" />
+  <rect x="190" y="224" width="14" height="12" fill="#E2E8F0" />
+  <rect x="308" y="224" width="14" height="12" fill="#CBD5E1" />
+
+  <!-- Cuello vertical corto y base plana redondeada -->
+  <rect x="243" y="346" width="26" height="44" fill="url(#micSteel)" />
+  <rect x="248" y="346" width="6" height="44" fill="#E2E8F0" opacity="0.7" />
+  <rect x="198" y="390" width="116" height="18" rx="9" fill="url(#micSteel)" />
+  <rect x="206" y="390" width="100" height="4" rx="2" fill="#E2E8F0" opacity="0.65" />
 </svg>
