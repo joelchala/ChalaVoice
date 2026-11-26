@@ -35,9 +35,9 @@ ChalaVoice es un lector en voz alta 100% local, privado y de código abierto (Ma
 CARACTERÍSTICAS
 • Popup compacto con audio persistente y Mini Barra Flotante arrastrable aislada en Shadow DOM: la lectura continúa aunque cierres el Popup.
 • Modo Inspector ("Seleccionar párrafo inicial"): señala cualquier párrafo, título o lista y haz clic para leer exactamente desde ese punto (Esc para cancelar).
-• Motor anti-congelamiento de 3 capas: subdivisión segura de oraciones largas, pausas naturales diferenciadas entre oraciones y párrafos, y Watchdog automático frente a cortes de síntesis en Chromium.
-• Lector dedicado de Libros y Textos offline: arrastra archivos .epub, .md o .txt (o pega texto) y retoma exactamente donde lo dejaste gracias a chrome.storage.local.
-• Estudio de Voz: clasifica automáticamente las voces de tu sistema (Natural, Neural, Online, Google, Apple), ofrece 4 presets en un clic (Narrador Rústico, Voz Suave, Modo Estudio, Natural) y Sleep Timer con atenuación gradual.
+• Motor anti-congelamiento de 3 capas: subdivisión segura de oraciones largas, pausas naturales diferenciadas entre oraciones y párrafos, y Watchdog automático frente a cortes de síntesis en el navegador.
+• Lector dedicado de Libros y Textos offline: arrastra archivos .epub, .md o .txt (o pega texto) y retoma exactamente donde lo dejaste gracias al almacenamiento local del navegador.
+• Estudio de Voz: clasifica automáticamente las voces de tu sistema (Natural, Neural, Online y locales), ofrece 4 presets en un clic (Narrador Rústico, Voz Suave, Modo Estudio, Natural) y Sleep Timer con atenuación gradual.
 
 100% local, sin telemetría, sin servidores externos y bajo licencia MIT.
 ```

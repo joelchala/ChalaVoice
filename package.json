@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "icons": "node tools/generate-icons.mjs",
+    "store-assets": "node tools/generate-store-assets.mjs",
     "build": "node tools/make-mv3.mjs",
     "test": "node tests/verify.mjs",
     "clean": "node -e \"import('node:fs').then(fs => { fs.rmSync('dist/build', { recursive: true, force: true }); fs.rmSync('store/paquetes', { recursive: true, force: true }); })\""

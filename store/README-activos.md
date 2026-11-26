@@ -4,7 +4,11 @@ Todos los activos PNG se generan de forma determinista y sin dependencias extern
 
 ```bash
 npm run icons
+npm run store-assets
 ```
+
+- `npm run icons`: genera `src/icons/icon*.png` y `store/logo-300x300.png` (conservando las piezas promocionales y capturas ricas de `store/` si ya existen).
+- `npm run store-assets`: renderiza en alta nitidez las 5 piezas promocionales y capturas de interfaz (`promo-440x280.png`, `destacada-1400x560.png`, `captura-1-lector-web.png`, `captura-2-perfiles-voz.png`, `captura-3-biblioteca-epub.png`).
 
 ## Inventario y Dimensiones Oficiales
 

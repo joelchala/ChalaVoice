@@ -5,7 +5,7 @@ ChalaVoice
 </h1>
 
 <p align="center">
-Lector en voz alta 100% local y privado (Manifest V3) para Google Chrome, Microsoft Edge y Mozilla Firefox.<br>
+Lector en voz alta 100% local y privado (Manifest V3) para Google Chrome, Microsoft Edge, Opera y Mozilla Firefox.<br>
 Popup compacto, Mini Barra Flotante en Shadow DOM, Modo Inspector visual, motor anti-congelamiento de 3 capas y lector offline (<code>.epub</code>, <code>.md</code>, <code>.txt</code>).
 </p>
 
@@ -15,8 +15,9 @@ Popup compacto, Mini Barra Flotante en Shadow DOM, Modo Inspector visual, motor 
 
 **ChalaVoice** convierte artículos web, apuntes y libros digitales en audio nítido utilizando exclusivamente las voces nativas de tu sistema operativo y navegador (`Web Speech API`), **100% offline**, sin servidores externos, sin telemetría y con **cero dependencias externas**.
 
-- **Sitio oficial (Suite Chala):** [chaladev.site](https://chaladev.site/)
+- **Sitio oficial (Suite Chala):** [chaladev.site](https://chaladev.site/) · [Ficha del producto](https://chaladev.site/products/chalavoice)
 - **Autor y mantenimiento:** Joel Rafael Chala García / Coposys SRL ([info@chaladev.site](mailto:info@chaladev.site))
+- **Tiendas:** [GitHub Releases](https://github.com/joelchala/ChalaVoice/releases) · [Opera Add-ons](https://addons.opera.com/developer/) *(en preparación)* · Microsoft Edge Add-ons *(en preparación)* · Mozilla Firefox AMO *(paquete listo)* · Chrome Web Store *(pendiente de cupo)*
 - **Licencia:** [MIT](LICENSE.txt)
 - **Privacidad:** [no recopila ni transmite datos](PRIVACY.md)
 
@@ -62,9 +63,11 @@ npm test
 
 Los paquetes listos para tienda se generan en `store/paquetes/` (con copia en `dist/build/`):
 
-- `ChalaVoice_1.1.0.chromium.zip` — Chrome Web Store
+- `ChalaVoice_1.1.0.chromium.zip` — Chrome Web Store y Opera Add-ons (`https://addons.opera.com/developer/`)
 - `ChalaVoice_1.1.0.edge.zip` — Microsoft Edge Add-ons
 - `ChalaVoice_1.1.0.firefox.zip` — Mozilla Firefox Add-ons / AMO (`gecko.id = "chalavoice@chaladev.site"`, `strict_min_version: "113.0"`, `background.scripts` y `action.default_popup`)
+
+Para regenerar los activos gráficos de tienda (`440×280`, `1400×560` y `1280×800`) ejecuta `npm run store-assets`.
 
 ## Suite Chala (las 8 extensiones)
 
@@ -77,7 +80,7 @@ Los paquetes listos para tienda se generan en `store/paquetes/` (con copia en `d
 - **[ChalaScrape](https://github.com/joelchala/ChalaScrape)** — Extractor visual de tablas, listas y tarjetas web a Excel (`.xlsx`) y CSV
 - **[ChalaTabs](https://github.com/joelchala/ChalaTabs)** — Gestor de pestañas en espacios de trabajo, ahorro de RAM y buscador instantáneo
 - **[ChalaVoice](https://github.com/joelchala/ChalaVoice)** — Lector en voz alta 100% local con Popup, Mini Barra Flotante, Modo Inspector y modo libro (EPUB/MD/TXT)
-- **[ChalaVPN](https://github.com/joelchala/ChalaVPN)** — Proxy HTTPS/SOCKS5 con protección contra fugas de WebRTC
+- **[ChalaVPN](https://github.com/joelchala/ChalaVPN)** — Proxy PAC seguro por país con rotación automática y protección contra fugas de WebRTC
 
 ## Apoyar el proyecto
 
